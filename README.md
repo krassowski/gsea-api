@@ -9,7 +9,8 @@ built using the pandas DataFrames and a hierarchy of Pythonic classes.
 
 ### Example usage
 
-```
+```python
+from pandas import read_csv
 from gsea_api.expression_set import ExpressionSet
 from gsea_api.gsea import GSEADesktop
 from gsea_api.molecular_signatures_db import GeneMatrixTransposed

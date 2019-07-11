@@ -19,7 +19,7 @@ if __name__ == '__main__':
     setup(
         name='gsea_api',
         packages=find_packages(),
-        version='0.1',
+        version='0.1.1',
         license='MIT',
         description='Pandas API for Gene Set Enrichment Analysis in Python (GSEApy, cudaGSEA, GSEA)',
         long_description=get_long_description('README.md'),
