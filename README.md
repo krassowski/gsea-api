@@ -1,11 +1,10 @@
 # GSEA API for Pandas
 Pandas API for Gene Set Enrichment Analysis in Python (GSEApy, cudaGSEA, GSEA)
 
-- This Python wrapper around various GSEA implementations aims to provide a unified programming interface,
-built using the pandas DataFrames and a hierarchy of Pythonic classes.
-- The file exports (providing input for GSEA) were written with performance in mind, using lower level numpy functions where necessary, thus are much faster than usual pandas-based exports.
-- This project aims to allow scientists in the Python community to easily compare different implementations of GSEA, and to integrate those in projects which require high performance GSEA interface.
-- The project is in work-in-progress state and scheduled to have a major refactor and a more complete documentation.
+- This Python wrapper aims to provide a unified API for various GSEA implementations; it uses pandas DataFrames and a hierarchy of Pythonic classes.
+- The file exports (providing input for GSEA) were written with performance in mind, using lower level numpy functions where necessary, thus are much faster than pandas-based exports.
+- This project aims to allow researchers to easily compare different implementations of GSEA, and to integrate those in projects which require high performance GSEA.
+- The project is in work-in-progress state and may undergo moderate refactoring and recieve a more complete documentation (if there is an interest in it).
 
 ### Example usage
 
@@ -59,15 +58,33 @@ and link its binary to the `thirdparty` directory
 ln -s virtual_environment_path/bin/gseapy thirdparty/gseapy
 ```
 
+
+Use it with:
+
+```python
+from gsea_api.gsea import GSEApy
+
+gsea = GSEApy()
+```
+
 #### Installing cudaGSEA
 
-Please clone this fork of cudaGSEA to thirdparty directory and compile the binary version:
+Please clone this fork of cudaGSEA to thirdparty directory and compile the binary version (using the instructions from [this repository](https://github.com/krassowski/cudaGSEA)):
 
 ```
 git clone https://github.com/krassowski/cudaGSEA
 ```
 
 or use [the original version](https://github.com/gravitino/cudaGSEA), which does not implement FDR calculations.
+
+Use it with:
+
+```python
+from gsea_api.gsea import cudaGSEA
+
+# CPU implementation can be used with use_cpu=True
+gsea = cudaGSEA(fdr='full', use_cpu=False)
+```
 
 ### Citation
 
