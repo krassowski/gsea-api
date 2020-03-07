@@ -88,7 +88,9 @@ gsea = cudaGSEA(fdr='full', use_cpu=False)
 
 ### Citation
 
-Please cite the authors of the wrapped tools that you use.
+[![DOI](https://zenodo.org/badge/188071398.svg)](https://zenodo.org/badge/latestdoi/188071398)
+
+Please also cite the authors of the wrapped tools that you use.
 
 
 ### References
