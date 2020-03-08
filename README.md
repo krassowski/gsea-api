@@ -6,8 +6,8 @@
 Pandas API for Gene Set Enrichment Analysis in Python (GSEApy, cudaGSEA, GSEA)
 
 - aims to provide a unified API for various GSEA implementations; uses pandas DataFrames and a hierarchy of Pythonic classes.
-- file exports (exporting input for GSEA) use low level numpy functions and are much faster than in pandas
-- aims to allow researchers to easily compare different implementations of GSEA, and to integrate those in projects which require high performance GSEA (e.g. massive screening drug-repositioning)
+- file exports (exporting input for GSEA) use low-level numpy functions and are much faster than in pandas
+- aims to allow researchers to easily compare different implementations of GSEA, and to integrate those in projects which require high-performance GSEA (e.g. massive screening for drug-repositioning)
 - provides useful utilities for work with GMT files, or gene sets and pathways in general in Python
 
 ### Example usage
