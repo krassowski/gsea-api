@@ -1,4 +1,5 @@
 import re
+from functools import lru_cache
 from glob import glob
 from pathlib import Path
 from typing import Set, Collection
@@ -93,6 +94,16 @@ class GeneSets:
             index=[gene_set.name for gene_set in self.gene_sets],
             columns=identifiers
         )
+
+    @property
+    @lru_cache()
+    def gene_sets_by_name(self):
+        by_name = {
+            gene_set.name: gene_set
+            for gene_set in self.gene_sets
+        }
+        assert len(self.gene_sets) == len(by_name)
+        return by_name
 
     def __len__(self):
         return len(self.gene_sets)
