@@ -12,9 +12,9 @@ Pandas API for Gene Set Enrichment Analysis in Python (GSEApy, cudaGSEA, GSEA)
 from pandas import read_table
 from gsea_api.expression_set import ExpressionSet
 from gsea_api.gsea import GSEADesktop
-from gsea_api.molecular_signatures_db import GeneMatrixTransposed
+from gsea_api.molecular_signatures_db import GeneSets
 
-reactome_pathways = GeneMatrixTransposed.from_gmt('ReactomePathways.gmt')
+reactome_pathways = GeneSets.from_gmt('ReactomePathways.gmt')
 
 gsea = GSEADesktop()
 

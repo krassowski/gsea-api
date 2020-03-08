@@ -16,7 +16,7 @@ class GeneSet:
         return cls(name, ids)
 
 
-class GeneMatrixTransposed:
+class GeneSets:
 
     def __init__(self, gene_sets, name=''):
         self.gene_sets = gene_sets
@@ -31,7 +31,7 @@ class GeneMatrixTransposed:
             }, name=name)
 
     def trim(self, min_genes, max_genes: int):
-        return GeneMatrixTransposed({
+        return GeneSets({
             gene_set
             for gene_set in self.gene_sets
             if min_genes <= len(gene_set.genes) <= max_genes
@@ -54,7 +54,7 @@ class GeneMatrixTransposed:
             self._to_gmt(path)
 
     def subset(self, genes: Set[str]):
-        return GeneMatrixTransposed({
+        return GeneSets({
             GeneSet(name=gene_set.name, genes=gene_set.genes & genes)
             for gene_set in self.gene_sets
         })
@@ -67,6 +67,13 @@ class GeneMatrixTransposed:
             all_identifiers.update(gene_set.genes)
 
         return all_identifiers
+
+    def __len__(self):
+        return len(self.gene_sets)
+
+
+# for backwards compatibility
+GeneMatrixTransposed = GeneSets
 
 
 class MolecularSignaturesDatabase:
@@ -90,7 +97,7 @@ class MolecularSignaturesDatabase:
         else:
             raise ValueError(f'Unknown library: {path}!')
 
-    def load(self, gene_sets, id_type) -> GeneMatrixTransposed:
+    def load(self, gene_sets, id_type) -> GeneSets:
         path = self.resolve(gene_sets=gene_sets, id_type=id_type)
 
-        return GeneMatrixTransposed.from_gmt(path, name=gene_sets)
+        return GeneSets.from_gmt(path, name=gene_sets)

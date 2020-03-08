@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory, NamedTemporaryFile
 from IPython.core.display import display
 from pandas import read_table, DataFrame
 
-from ..molecular_signatures_db import GeneMatrixTransposed
+from ..molecular_signatures_db import GeneSets
 from .base import GSEA
 from ..paths import tmp_dir, third_party_dir
 
