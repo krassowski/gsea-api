@@ -27,6 +27,7 @@ def test_from_gmt():
 
     assert len(pathways.trim(min_genes=3, max_genes=100)) == 2
     assert pathways.name == 'gene_ontology_pathways.gmt'
+    assert repr(pathways) == "<GeneSets 'gene_ontology_pathways.gmt' with 4 gene sets>"
 
 
 def test_to_frame():
@@ -51,3 +52,9 @@ def test_gene_sets():
     assert len(gene_sets) == 3
 
     assert gene_sets.all_identifiers == set(all_genes)
+    assert repr(gene_sets) == "<GeneSets with 3 gene sets>"
+
+
+def test_gene_set():
+    gene_set = GeneSet('behavioral response to chemical pain', ['P2RX3', 'NTRK1'])
+    assert repr(gene_set) == "<GeneSet 'behavioral response to chemical pain' with 2 genes: NTRK1, P2RX3>"

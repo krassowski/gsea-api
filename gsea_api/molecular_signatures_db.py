@@ -9,7 +9,7 @@ from pandas import DataFrame
 
 class GeneSet:
 
-    def __init__(self, name, genes):
+    def __init__(self, name: str, genes: Collection[str]):
         self.name = name
         self.genes = set(genes)
 
@@ -17,6 +17,10 @@ class GeneSet:
     def from_gmt_line(cls, line):
         name, url, *ids = line.strip().split('\t')
         return cls(name, ids)
+
+    def __repr__(self):
+        genes = ': ' + (', '.join(sorted(self.genes))) if len(self.genes) < 5 else ''
+        return f'<GeneSet {repr(self.name)} with {len(self.genes)} genes{genes}>'
 
 
 class GeneSets:
@@ -92,6 +96,10 @@ class GeneSets:
 
     def __len__(self):
         return len(self.gene_sets)
+
+    def __repr__(self):
+        name = ' ' + repr(self.name) if self.name else ''
+        return f'<GeneSets{name} with {len(self.gene_sets)} gene sets>'
 
 
 # for backwards compatibility
