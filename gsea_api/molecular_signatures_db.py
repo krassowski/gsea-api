@@ -27,7 +27,7 @@ class GeneSet:
 class GeneSets:
 
     def __init__(self, gene_sets: Collection[GeneSet], name='', allow_redundant=False):
-        self.gene_sets = gene_sets
+        self.gene_sets = tuple(gene_sets)
         self.name = name
         if not allow_redundant:
             df = self.to_frame()
@@ -73,26 +73,27 @@ class GeneSets:
         })
 
     @property
-    def all_identifiers(self):
-        all_identifiers = set()
+    @lru_cache()
+    def all_genes(self):
+        all_genes = set()
 
         for gene_set in self.gene_sets:
-            all_identifiers.update(gene_set.genes)
+            all_genes.update(gene_set.genes)
 
-        return all_identifiers
+        return all_genes
 
     def to_frame(self) -> DataFrame:
-        identifiers = self.all_identifiers
+        all_genes = self.all_genes
         return DataFrame(
             [
                 [
                     gene in gene_set.genes
-                    for gene in identifiers
+                    for gene in all_genes
                 ]
                 for gene_set in self.gene_sets
             ],
             index=[gene_set.name for gene_set in self.gene_sets],
-            columns=identifiers
+            columns=all_genes
         )
 
     @property

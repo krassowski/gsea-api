@@ -51,7 +51,7 @@ def test_gene_sets():
     assert len(gene_sets) == len(gene_sets_list)
     assert len(gene_sets) == 3
 
-    assert gene_sets.all_identifiers == set(all_genes)
+    assert gene_sets.all_genes == set(all_genes)
     assert repr(gene_sets) == "<GeneSets with 3 gene sets>"
 
 
