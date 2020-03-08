@@ -4,12 +4,12 @@ Pandas API for Gene Set Enrichment Analysis in Python (GSEApy, cudaGSEA, GSEA)
 - This Python wrapper aims to provide a unified API for various GSEA implementations; it uses pandas DataFrames and a hierarchy of Pythonic classes.
 - The file exports (providing input for GSEA) were written with performance in mind, using lower level numpy functions where necessary, thus are much faster than pandas-based exports.
 - This project aims to allow researchers to easily compare different implementations of GSEA, and to integrate those in projects which require high performance GSEA.
-- The project is in work-in-progress state and may undergo moderate refactoring and recieve a more complete documentation (if there is an interest in it).
+- The project is in work-in-progress state and may undergo moderate refactoring and receive a more complete documentation (if there is an interest in it).
 
 ### Example usage
 
 ```python
-from pandas import read_csv
+from pandas import read_table
 from gsea_api.expression_set import ExpressionSet
 from gsea_api.gsea import GSEADesktop
 from gsea_api.molecular_signatures_db import GeneMatrixTransposed
@@ -19,7 +19,7 @@ reactome_pathways = GeneMatrixTransposed.from_gmt('ReactomePathways.gmt')
 gsea = GSEADesktop()
 
 design = ['Disease', 'Disease', 'Disease', 'Control', 'Control', 'Control']
-matrix = read_csv('expression_data.csv')
+matrix = read_table('expression_data.tsv', index_col='Gene')
 
 result = gsea.run(
     # note: contrast() is not necessary in this simple case
@@ -30,6 +30,14 @@ result = gsea.run(
 )
 ```
 
+
+Where `expression_data.tsv` is in the following format:
+
+```
+Gene	Patient_1	Patient_2	Patient_3	Patient_4	Patient_5	Patient_6
+TACC2	0.2	0.1	0.4	0.6	0.7	2.1
+TP53	2.3	0.2	2.1	2.0	0.3	0.6
+```
 
 ### Installation
 
