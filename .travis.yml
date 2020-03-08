@@ -1,0 +1,21 @@
+language: python
+cache:
+  timeout: 1800
+  pip: true
+
+
+python:
+  - 3.6
+
+
+install:
+  - pip install -r requirements.txt
+  - pip install -r tests/requirements.txt
+
+
+script:
+ - bash run_tests.sh
+
+
+after_success:
+  - codecov

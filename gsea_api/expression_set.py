@@ -2,6 +2,7 @@ import pandas
 from numpy import savetxt
 from pandas import DataFrame, Series, concat
 from typing.io import TextIO
+from typing import List, Union
 
 
 class ExpressionSet:
@@ -10,15 +11,17 @@ class ExpressionSet:
     joined: DataFrame
     classes: Series
 
-    def __init__(self, data: DataFrame, classes: Series):
+    def __init__(self, data: DataFrame, classes: Union[Series, List]):
         self.joined = data
-        self.classes = classes
+        self.classes = Series(classes)
+        if len(data.columns) != len(classes):
+            raise ValueError('Number of classes different from the number of columns')
 
     @classmethod
     def from_cases_and_controls(
         cls, cases: DataFrame, controls: DataFrame,
         case_name: str = 'case', control_name: str = 'control'
-    ):
+    ) -> 'ExpressionSet':
         assert cases.index == controls.index
         return cls(
             data=concat(cases, controls),
@@ -30,7 +33,13 @@ class ExpressionSet:
     #def __repr__(self):
     #    return f'<{self.__class__.__name__}: {len(self.cases.columns)} cases, {len(self.controls.columns)} controls>'
 
-    def contrast(self, case, control):
+    def contrast(self, case, control) -> 'ExpressionSet':
+        """Select a subset of two groups (cases and controls) from experimental groups in the expression set.
+
+        For example, having groups Drug_A, Drug_B, Control, if you want to only analyse Drug_A vs Control, specify:
+
+        subset = expression_set.contrast(case='Drug_A', control='Control')
+        """
         assert case in self.classes.unique() and control in self.classes.unique()
         mask = self.classes.isin({case, control})
         return ExpressionSet(
