@@ -1,7 +1,10 @@
 import re
 from glob import glob
 from pathlib import Path
-from typing import Set
+from typing import Set, Collection
+from warnings import warn
+
+from pandas import DataFrame
 
 
 class GeneSet:
@@ -18,17 +21,22 @@ class GeneSet:
 
 class GeneSets:
 
-    def __init__(self, gene_sets, name=''):
+    def __init__(self, gene_sets: Collection[GeneSet], name='', allow_redundant=False):
         self.gene_sets = gene_sets
         self.name = name
+        if not allow_redundant:
+            df = self.to_frame()
+            if any(df.duplicated()):
+                identical = ' AND '.join(df.index[df.duplicated(keep=False)])
+                warn(f'Provided gene sets are not redundant; following gene sets are identical: {identical}')
 
     @classmethod
-    def from_gmt(cls, path, name=''):
+    def from_gmt(cls, path, name=None):
         with open(path) as f:
             return cls({
                 GeneSet.from_gmt_line(line)
                 for line in f
-            }, name=name)
+            }, name=name or Path(path).name)
 
     def trim(self, min_genes, max_genes: int):
         return GeneSets({
@@ -67,6 +75,20 @@ class GeneSets:
             all_identifiers.update(gene_set.genes)
 
         return all_identifiers
+
+    def to_frame(self) -> DataFrame:
+        identifiers = self.all_identifiers
+        return DataFrame(
+            [
+                [
+                    gene in gene_set.genes
+                    for gene in identifiers
+                ]
+                for gene_set in self.gene_sets
+            ],
+            index=[gene_set.name for gene_set in self.gene_sets],
+            columns=identifiers
+        )
 
     def __len__(self):
         return len(self.gene_sets)
