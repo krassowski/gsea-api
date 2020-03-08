@@ -1,10 +1,14 @@
 # GSEA API for Pandas
+[![Build Status](https://travis-ci.com/krassowski/gsea-api.svg?branch=master)](https://travis-ci.com/krassowski/gsea-api) 
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
+[![DOI](https://zenodo.org/badge/188071398.svg)](https://zenodo.org/badge/latestdoi/188071398)
+
 Pandas API for Gene Set Enrichment Analysis in Python (GSEApy, cudaGSEA, GSEA)
 
-- This Python wrapper aims to provide a unified API for various GSEA implementations; it uses pandas DataFrames and a hierarchy of Pythonic classes.
-- The file exports (providing input for GSEA) were written with performance in mind, using lower level numpy functions where necessary, thus are much faster than pandas-based exports.
-- This project aims to allow researchers to easily compare different implementations of GSEA, and to integrate those in projects which require high performance GSEA.
-- The project is in work-in-progress state and may undergo moderate refactoring and receive a more complete documentation (if there is an interest in it).
+- aims to provide a unified API for various GSEA implementations; uses pandas DataFrames and a hierarchy of Pythonic classes.
+- file exports (exporting input for GSEA) use low level numpy functions and are much faster than in pandas
+- aims to allow researchers to easily compare different implementations of GSEA, and to integrate those in projects which require high performance GSEA (e.g. massive screening drug-repositioning)
+- provides useful utilities for work with GMT files, or gene sets and pathways in general in Python
 
 ### Example usage
 
@@ -103,5 +107,4 @@ Please also cite the authors of the wrapped tools that you use.
 
 ### References
 
-The initial version of this code was written for my [Master thesis project](https://github.com/krassowski/drug-disease-profile-matching) at Imperial College London.
-
+The initial version of this code was written for a [Master thesis project](https://github.com/krassowski/drug-disease-profile-matching) at Imperial College London.
