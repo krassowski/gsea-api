@@ -10,14 +10,15 @@ from pandas import DataFrame
 
 class GeneSet:
 
-    def __init__(self, name: str, genes: Collection[str]):
+    def __init__(self, name: str, genes: Collection[str], description: str = None):
         self.name = name
         self.genes = set(genes)
+        self.description = description
 
     @classmethod
     def from_gmt_line(cls, line):
-        name, url, *ids = line.strip().split('\t')
-        return cls(name, ids)
+        name, description, *ids = line.strip().split('\t')
+        return cls(name, ids, description)
 
     def __repr__(self):
         genes = ': ' + (', '.join(sorted(self.genes))) if len(self.genes) < 5 else ''

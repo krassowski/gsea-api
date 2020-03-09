@@ -29,6 +29,10 @@ def test_from_gmt():
     assert pathways.name == 'gene_ontology_pathways.gmt'
     assert repr(pathways) == "<GeneSets 'gene_ontology_pathways.gmt' with 4 gene sets>"
 
+    uterus_morphogenesis = pathways.gene_sets_by_name['GO:0061038']
+    assert uterus_morphogenesis.description == 'uterus morphogenesis'
+    assert uterus_morphogenesis.genes == set('ASH1L	KDM5B	STRA6	WNT7A	WNT9B	NIPBL'.split())
+
 
 def test_to_frame():
     gene_sets = GeneSets(gene_sets_list)
