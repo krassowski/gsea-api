@@ -37,11 +37,19 @@ class GeneSets:
         if not allow_redundant:
             redundant = self.find_redundant()
             if any(redundant):
-                identical = ', '.join(
-                    ' and '.join(map(repr, pathways)) + f' ({len(gene_set)} genes)'
-                    for gene_set, pathways in redundant.items()
-                )
-                warn(f'Provided gene sets are not redundant; following gene sets are identical: {identical}')
+                message = 'Provided gene sets are not redundant; '
+                if len(redundant) > 3:
+                    message += (
+                        f'there are {len(redundant)} gene sets having more than one name assigned; '
+                        'use find_redundant() to investigate further.'
+                    )
+                else:
+                    identical = ', '.join(
+                        ' and '.join(map(repr, pathways)) + f' ({len(gene_set)} genes)'
+                        for gene_set, pathways in redundant.items()
+                    )
+                    message += f'following gene sets are identical: {identical}'
+                warn(message)
 
     def group_identical(self, key='name') -> Dict[frozenset, List[str]]:
         pathways_by_gene_set = defaultdict(list)

@@ -56,6 +56,16 @@ def test_gene_sets():
     assert gene_sets.all_genes == set(all_genes)
     assert repr(gene_sets) == "<GeneSets with 3 gene sets>"
 
+    identical_gene_sets = r"'behavioral response to chemical pain' and 'behavioral response to formalin induced pain' \(2 genes\)"
+
+    warning_text = f'Provided gene sets are not redundant; there are 10 gene sets having more than one name assigned'
+    with warns(UserWarning, match=warning_text):
+        gene_sets = GeneSets([
+            GeneSet('duplicated set', [f'G{i}', f'H{i}'])
+            for i in range(10)
+            for _ in range(2)
+        ])
+
 
 def test_gene_set():
     gene_set = GeneSet('behavioral response to chemical pain', ['P2RX3', 'NTRK1'])
