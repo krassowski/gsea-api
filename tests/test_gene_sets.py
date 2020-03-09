@@ -60,3 +60,7 @@ def test_gene_sets():
 def test_gene_set():
     gene_set = GeneSet('behavioral response to chemical pain', ['P2RX3', 'NTRK1'])
     assert repr(gene_set) == "<GeneSet 'behavioral response to chemical pain' with 2 genes: NTRK1, P2RX3>"
+
+    with warns(UserWarning, match="GeneSet 'non-unique collection' received a non-unique collection of genes"):
+        gene_set = GeneSet('non-unique collection', ['TP53', 'TP53'])
+    assert gene_set.genes == {'TP53'}

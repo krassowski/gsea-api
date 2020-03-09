@@ -16,6 +16,9 @@ class GeneSet:
         self.genes = frozenset(genes)
         self.description = description
 
+        if len(genes) != len(self.genes):
+            warn(f'GeneSet {repr(name)} received a non-unique collection of genes')
+
     @classmethod
     def from_gmt_line(cls, line):
         name, description, *ids = line.strip().split('\t')
