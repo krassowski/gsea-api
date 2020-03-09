@@ -71,6 +71,9 @@ def test_gene_set():
     gene_set = GeneSet('behavioral response to chemical pain', ['P2RX3', 'NTRK1'])
     assert repr(gene_set) == "<GeneSet 'behavioral response to chemical pain' with 2 genes: NTRK1, P2RX3>"
 
-    with warns(UserWarning, match="GeneSet 'non-unique collection' received a non-unique collection of genes"):
+    with warns(UserWarning, match="GeneSet 'non-unique collection' received a non-unique collection of genes; redundant genes: {'TP53': 2}"):
         gene_set = GeneSet('non-unique collection', ['TP53', 'TP53'])
     assert gene_set.genes == {'TP53'}
+
+    with warns(UserWarning, match="GeneSet 'empty collection' is empty"):
+        gene_set = GeneSet('empty collection', [])

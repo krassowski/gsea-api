@@ -1,5 +1,5 @@
 import re
-from collections import defaultdict
+from collections import Counter, defaultdict
 from functools import lru_cache
 from glob import glob
 from pathlib import Path
@@ -16,8 +16,17 @@ class GeneSet:
         self.genes = frozenset(genes)
         self.description = description
 
+        if len(genes) == 0:
+            warn(f'GeneSet {repr(name)} is empty')
+
+        redundant_genes = None
+
         if len(genes) != len(self.genes):
-            warn(f'GeneSet {repr(name)} received a non-unique collection of genes')
+            redundant_genes = {gene: count for gene, count in Counter(genes).items() if count > 1}
+
+            warn(f'GeneSet {repr(name)} received a non-unique collection of genes; redundant genes: {redundant_genes}')
+
+        self.redundant_genes = redundant_genes
 
     @classmethod
     def from_gmt_line(cls, line):
