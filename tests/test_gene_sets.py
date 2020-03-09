@@ -31,7 +31,7 @@ def test_from_gmt():
 
     uterus_morphogenesis = pathways.gene_sets_by_name['GO:0061038']
     assert uterus_morphogenesis.description == 'uterus morphogenesis'
-    assert uterus_morphogenesis.genes == set('ASH1L	KDM5B	STRA6	WNT7A	WNT9B	NIPBL'.split())
+    assert uterus_morphogenesis.genes == frozenset('ASH1L	KDM5B	STRA6	WNT7A	WNT9B	NIPBL'.split())
 
 
 def test_to_frame():
@@ -45,10 +45,8 @@ def test_to_frame():
 
 
 def test_gene_sets():
-    identical_gene_sets = ' AND '.join([
-        'behavioral response to chemical pain',
-        'behavioral response to formalin induced pain'
-    ])
+    identical_gene_sets = r"'behavioral response to chemical pain' and 'behavioral response to formalin induced pain' \(2 genes\)"
+
     warning_text = f'Provided gene sets are not redundant; following gene sets are identical: {identical_gene_sets}'
     with warns(UserWarning, match=warning_text):
         gene_sets = GeneSets(gene_sets_list)

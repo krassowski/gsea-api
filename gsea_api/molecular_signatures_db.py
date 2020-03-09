@@ -1,8 +1,9 @@
 import re
+from collections import defaultdict
 from functools import lru_cache
 from glob import glob
 from pathlib import Path
-from typing import Set, Collection
+from typing import Collection, Dict, List, Set
 from warnings import warn
 
 from pandas import DataFrame
@@ -12,7 +13,7 @@ class GeneSet:
 
     def __init__(self, name: str, genes: Collection[str], description: str = None):
         self.name = name
-        self.genes = set(genes)
+        self.genes = frozenset(genes)
         self.description = description
 
     @classmethod
@@ -31,10 +32,26 @@ class GeneSets:
         self.gene_sets = tuple(gene_sets)
         self.name = name
         if not allow_redundant:
-            df = self.to_frame()
-            if any(df.duplicated()):
-                identical = ' AND '.join(df.index[df.duplicated(keep=False)])
+            redundant = self.find_redundant()
+            if any(redundant):
+                identical = ', '.join(
+                    ' and '.join(map(repr, pathways)) + f' ({len(gene_set)} genes)'
+                    for gene_set, pathways in redundant.items()
+                )
                 warn(f'Provided gene sets are not redundant; following gene sets are identical: {identical}')
+
+    def group_identical(self, key='name') -> Dict[frozenset, List[str]]:
+        pathways_by_gene_set = defaultdict(list)
+        for pathway in self.gene_sets:
+            pathways_by_gene_set[pathway.genes].append(getattr(pathway, key))
+        return pathways_by_gene_set
+
+    def find_redundant(self, key='name', min_duplicates=1) -> Dict[frozenset, List[str]]:
+        return {
+            gene_set: pathways
+            for gene_set, pathways in self.group_identical().items()
+            if len(pathways) > min_duplicates
+        }
 
     @classmethod
     def from_gmt(cls, path, name=None):
