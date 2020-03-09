@@ -69,7 +69,7 @@ class GeneSets:
     def find_redundant(self, key='name', min_duplicates=1) -> Dict[frozenset, List[str]]:
         return {
             gene_set: pathways
-            for gene_set, pathways in self.group_identical().items()
+            for gene_set, pathways in self.group_identical(key=key).items()
             if len(pathways) > min_duplicates
         }
 
