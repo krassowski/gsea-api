@@ -106,7 +106,7 @@ class GeneSets:
                 **kwargs
             )
 
-    def trim(self, min_genes, max_genes: int):
+    def trim(self, min_genes: int, max_genes: int):
         return GeneSets({
             gene_set
             for gene_set in self.gene_sets
@@ -131,7 +131,7 @@ class GeneSets:
 
     def subset(self, genes: Set[str]):
         return GeneSets({
-            GeneSet(name=gene_set.name, genes=gene_set.genes & genes)
+            GeneSet(name=gene_set.name, genes=gene_set.genes & genes, warn_if_empty=False)
             for gene_set in self.gene_sets
         })
 
