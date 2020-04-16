@@ -3,11 +3,11 @@ from glob import glob
 from pathlib import Path
 from shutil import rmtree
 from tempfile import TemporaryDirectory, NamedTemporaryFile
+from typing import Union
+from warnings import warn
 
-from IPython.core.display import display
 from pandas import read_table, DataFrame
 
-from ..molecular_signatures_db import GeneSets
 from .base import GSEA
 from ..paths import tmp_dir, third_party_dir
 
@@ -15,11 +15,21 @@ from ..paths import tmp_dir, third_party_dir
 class GSEADesktop(GSEA):
     path = Path('java')
 
-    def __init__(self, memory_size=5000, **kwargs):
+    def __init__(self, memory_size=5000, gsea_jar_path: Union[str, Path] = None, **kwargs):
         super().__init__(**kwargs)
         self.memory_size = memory_size
-        self.gsea_path = third_party_dir / 'gsea-3.0.jar'
-        assert self.gsea_path.exists()
+        if gsea_jar_path is None:
+            gsea_jar_path = third_party_dir / 'gsea-3.0.jar'
+        else:
+            gsea_jar_path = Path(gsea_jar_path)
+            if not str(gsea_jar_path).endswith('.jar'):
+                warn(f'{gsea_jar_path} does not look like a valid GSEADesktop path')
+        self.gsea_path = gsea_jar_path
+        if not self.gsea_path.exists():
+            raise Exception(
+                f'Could not find GSEADesktop installation in {gsea_jar_path};'
+                f' please symlink it or set path in "gsea_jar_path" argument.'
+            )
 
     @property
     def core_command(self):
