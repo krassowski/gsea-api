@@ -11,12 +11,12 @@ from pandas import DataFrame
 
 class GeneSet:
 
-    def __init__(self, name: str, genes: Collection[str], description: str = None):
+    def __init__(self, name: str, genes: Collection[str], description: str = None, warn_if_empty=True):
         self.name = name
         self.genes = frozenset(genes)
         self.description = description
 
-        if len(genes) == 0:
+        if warn_if_empty and self.is_empty:
             warn(f'GeneSet {repr(name)} is empty')
 
         redundant_genes = None
@@ -29,9 +29,13 @@ class GeneSet:
         self.redundant_genes = redundant_genes
 
     @classmethod
-    def from_gmt_line(cls, line):
+    def from_gmt_line(cls, line, **kwargs):
         name, description, *ids = line.strip().split('\t')
-        return cls(name, ids, description)
+        return cls(name, ids, description, **kwargs)
+
+    @property
+    def is_empty(self):
+        return len(self.genes) == 0
 
     def __repr__(self):
         genes = ': ' + (', '.join(sorted(self.genes))) if len(self.genes) < 5 else ''
@@ -40,8 +44,8 @@ class GeneSet:
 
 class GeneSets:
 
-    def __init__(self, gene_sets: Collection[GeneSet], name='', allow_redundant=False):
-        self.gene_sets = tuple(gene_sets)
+    def __init__(self, gene_sets: Collection[GeneSet], name='', allow_redundant=False, remove_empty=True):
+        self.gene_sets = tuple(gene_sets)   # NOTE: this is not final
         self.name = name
         if not allow_redundant:
             redundant = self.find_redundant()
@@ -50,7 +54,7 @@ class GeneSets:
                 if len(redundant) > 3:
                     message += (
                         f'there are {len(redundant)} gene sets having more than one name assigned; '
-                        'use find_redundant() to investigate further.'
+                        'use `find_redundant()` to investigate further.'
                     )
                 else:
                     identical = ', '.join(
@@ -59,6 +63,23 @@ class GeneSets:
                     )
                     message += f'following gene sets are identical: {identical}'
                 warn(message)
+
+        empty_gene_sets = {gene_set for gene_set in gene_sets if gene_set.is_empty}
+
+        if len(empty_gene_sets) != 0:
+            empty_message = (
+                ', '.join(gene_set.name for gene_set in empty_gene_sets)
+                if len(empty_gene_sets) <= 5 else
+                'use `empty_gene_sets` property to investigate further.'
+            )
+            warn(f'There are {len(empty_gene_sets)} empty gene sets: {empty_message}')
+
+            if remove_empty:
+                gene_sets = set(gene_sets) - empty_gene_sets
+                warn(f'{len(empty_gene_sets)} empty gene sets were removed.')
+
+        self.empty_gene_sets = empty_gene_sets
+        self.gene_sets = tuple(gene_sets)
 
     def group_identical(self, key='name') -> Dict[frozenset, List[str]]:
         pathways_by_gene_set = defaultdict(list)
@@ -74,12 +95,16 @@ class GeneSets:
         }
 
     @classmethod
-    def from_gmt(cls, path, name=None):
+    def from_gmt(cls, path, name=None, **kwargs):
         with open(path) as f:
-            return cls({
-                GeneSet.from_gmt_line(line)
-                for line in f
-            }, name=name or Path(path).name)
+            return cls(
+                {
+                    GeneSet.from_gmt_line(line, warn_if_empty=False)
+                    for line in f
+                },
+                name=name or Path(path).name,
+                **kwargs
+            )
 
     def trim(self, min_genes, max_genes: int):
         return GeneSets({

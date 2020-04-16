@@ -56,8 +56,6 @@ def test_gene_sets():
     assert gene_sets.all_genes == set(all_genes)
     assert repr(gene_sets) == "<GeneSets with 3 gene sets>"
 
-    identical_gene_sets = r"'behavioral response to chemical pain' and 'behavioral response to formalin induced pain' \(2 genes\)"
-
     warning_text = f'Provided gene sets are not redundant; there are 10 gene sets having more than one name assigned'
     with warns(UserWarning, match=warning_text):
         gene_sets = GeneSets([
@@ -65,6 +63,14 @@ def test_gene_sets():
             for i in range(10)
             for _ in range(2)
         ])
+
+    with warns(UserWarning, match='There are 2 empty gene sets.*'):
+        gene_sets = GeneSets([
+            GeneSet('empty gene set 1', genes=[], warn_if_empty=False),
+            GeneSet('empty gene set 2', genes=[], warn_if_empty=False)
+        ])
+        assert len(gene_sets) == 0
+        assert len(gene_sets.empty_gene_sets) == 2
 
 
 def test_gene_set():
@@ -77,3 +83,8 @@ def test_gene_set():
 
     with warns(UserWarning, match="GeneSet 'empty collection' is empty"):
         gene_set = GeneSet('empty collection', [])
+
+    with warns(None) as record:
+        gene_set = GeneSet('empty collection', [], warn_if_empty=False)
+    assert not record.list
+
