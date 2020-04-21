@@ -182,9 +182,11 @@ GeneMatrixTransposed = GeneSets
 
 
 class MolecularSignaturesDatabase:
-    def __init__(self, path, version='6.2'):
+    def __init__(self, path, version='7.1'):
         self.path = Path(path)
-        self.version = version
+        if not self.path.exists():
+            raise ValueError(f'Could not find MSigDB: {self.path} does not exist')
+        self.version = str(version)
         wildcard_path = str((self.path / f'*.v{self.version}.*.gmt').resolve())
         self.gene_sets = [
             self.parse_name(Path(p).name)
@@ -196,7 +198,7 @@ class MolecularSignaturesDatabase:
         return parsed.groupdict()
 
     def resolve(self, gene_sets, id_type):
-        path = self.path / f'{gene_sets}.v6.2.{id_type}.gmt'
+        path = self.path / f'{gene_sets}.v{self.version}.{id_type}.gmt'
         if path.exists():
             return str(path)
         else:
