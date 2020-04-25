@@ -106,7 +106,7 @@ class GeneSets:
                 **kwargs
             )
 
-    def trim(self, min_genes: int, max_genes: int):
+    def trim(self, min_genes: int = 0, max_genes: int = float('Inf')):
         return GeneSets({
             gene_set
             for gene_set in self.gene_sets

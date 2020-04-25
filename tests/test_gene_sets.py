@@ -26,6 +26,11 @@ def test_from_gmt():
     assert len(pathways.gene_sets) == 4
 
     assert len(pathways.trim(min_genes=3, max_genes=100)) == 2
+    # max_genes should be optional
+    assert len(pathways.trim(min_genes=3)) == 2
+    # min_genes should be optional
+    assert len(pathways.trim(max_genes=2)) == 2
+
     assert pathways.name == 'gene_ontology_pathways.gmt'
     assert repr(pathways) == "<GeneSets 'gene_ontology_pathways.gmt' with 4 gene sets>"
 
