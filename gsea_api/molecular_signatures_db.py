@@ -3,7 +3,7 @@ from collections import Counter, defaultdict
 from functools import lru_cache
 from glob import glob
 from pathlib import Path
-from typing import Collection, Dict, List, Set
+from typing import Collection, Dict, List, Iterable
 from warnings import warn
 
 from pandas import DataFrame
@@ -40,6 +40,16 @@ class GeneSet:
     def __repr__(self):
         genes = ': ' + (', '.join(sorted(self.genes))) if len(self.genes) < 5 else ''
         return f'<GeneSet {repr(self.name)} with {len(self.genes)} genes{genes}>'
+
+    def __eq__(self, other: 'GeneSet'):
+        return (
+            self.name == other.name
+            and
+            self.genes == other.genes
+        )
+
+    def __hash__(self):
+        return hash((self.name, self.genes))
 
 
 class GeneSets:
@@ -129,7 +139,9 @@ class GeneSets:
         else:
             self._to_gmt(path)
 
-    def subset(self, genes: Set[str]):
+    def subset(self, genes: Iterable[str]):
+        if not isinstance(genes, set):
+            genes = set(genes)
         return GeneSets({
             GeneSet(name=gene_set.name, genes=gene_set.genes & genes, warn_if_empty=False)
             for gene_set in self.gene_sets
@@ -175,6 +187,16 @@ class GeneSets:
     def __repr__(self):
         name = ' ' + repr(self.name) if self.name else ''
         return f'<GeneSets{name} with {len(self.gene_sets)} gene sets>'
+
+    def __eq__(self, other: 'GeneSets'):
+        return (
+            set(self.gene_sets) == set(other.gene_sets)
+            and
+            self.name == other.name
+        )
+
+    def __hash__(self):
+        return hash((self.name, self.gene_sets))
 
 
 # for backwards compatibility

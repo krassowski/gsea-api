@@ -61,6 +61,13 @@ def test_gene_sets():
     assert gene_sets.all_genes == set(all_genes)
     assert repr(gene_sets) == "<GeneSets with 3 gene sets>"
 
+    subset = gene_sets.subset({'ASHL1', 'KDM5B'})
+    assert subset != gene_sets
+    assert list(subset.gene_sets_by_name.keys()) == ['uterus morphogenesis']
+
+    # subset() should accept any iterable, not only sets
+    assert subset == gene_sets.subset(['ASHL1', 'KDM5B'])
+
     warning_text = f'Provided gene sets are not redundant; there are 10 gene sets having more than one name assigned'
     with warns(UserWarning, match=warning_text):
         gene_sets = GeneSets([
