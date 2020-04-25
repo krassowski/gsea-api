@@ -105,10 +105,10 @@ The gene sets are accessible with `gene_sets` (tuple) and `gene_sets_by_name` (d
 
 ```python
 > kegg_pathways.gene_sets[:2]
-(<GeneSet 'KEGG_EPITHELIAL_CELL_SIGNALING_IN_HELICOBACTER_PYLORI_INFECTION' with 68 genes>, <GeneSet 'KEGG_RNA_DEGRADATION' with 59 genes>)
+(<GeneSet 'KEGG_TIGHT_JUNCTION' with 132 genes>, <GeneSet 'KEGG_RNA_DEGRADATION' with 59 genes>)
 > kegg_pathways.gene_sets_by_name
 {
-    'KEGG_EPITHELIAL_CELL_SIGNALING_IN_HELICOBACTER_PYLORI_INFECTION': <GeneSet 'KEGG_EPITHELIAL_CELL_SIGNALING_IN_HELICOBACTER_PYLORI_INFECTION' with 68 genes>,
+    'KEGG_TIGHT_JUNCTION': <GeneSet 'KEGG_TIGHT_JUNCTION' with 132 genes>,
     'KEGG_RNA_DEGRADATION': <GeneSet 'KEGG_RNA_DEGRADATION' with 59 genes>
     # etc.
  }
@@ -129,12 +129,23 @@ The skipped gene sets are accessible in `measured_subset.empty_gene_sets` for in
 
 #### Trimmming collections
 
-```
+```python
 > kegg_pathways.trim(min_genes=10, max_genes=20)
 <GeneSets with 21 gene sets>
 ```
 
-#### Other `GeneSets` properties
+#### Prettify names
+
+```python
+def prettify_kegg_name(name):
+    return name.replace('KEGG_', '').replace('_', ' ')
+
+kegg_pathways_pretty = kegg_pathways.format_names(prettify_kegg_name)
+kegg_pathways_pretty.gene_sets[:2]
+# (<GeneSet 'TIGHT JUNCTION' with 132 genes>, <GeneSet 'RNA DEGRADATION' with 59 genes>)
+```
+
+#### Other properties
 
 Other properties and methods offered by `GeneSets` include:
    - `all_genes`: return a set of all genes which are covered by the gene sets in the collection
@@ -148,8 +159,11 @@ Other properties and methods offered by `GeneSets` include:
 
 Login/register on [the official GSEA website](http://software.broadinstitute.org/gsea/login.jsp) and download the `gsea_3.0.jar` file (or a newer version).
 
-Please place the downloaded file in the thirdparty directory.
+Provide the location of the downloaded file to `GSEADesktop()` using `gsea_jar_path` argument, e.g.:
 
+```python
+gsea = GSEADesktop(gsea_jar_path='downloads/gsea_3.0.jar')
+```
 
 #### Installing GSEApy
 
@@ -192,13 +206,13 @@ from gsea_api.gsea import cudaGSEA
 gsea = cudaGSEA(fdr='full', use_cpu=False)
 ```
 
-### Citation
+## Citation
 
 [![DOI](https://zenodo.org/badge/188071398.svg)](https://zenodo.org/badge/latestdoi/188071398)
 
 Please also cite the authors of the wrapped tools that you use.
 
 
-### References
+## References
 
 The initial version of this code was written for a [Master thesis project](https://github.com/krassowski/drug-disease-profile-matching) at Imperial College London.
