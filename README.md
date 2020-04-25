@@ -14,7 +14,8 @@ Pandas API for Gene Set Enrichment Analysis in Python (GSEApy, cudaGSEA, GSEA)
 ## Installation
 
 To install the API use:
-```
+
+```bash
 pip3 install gsea_api
 ```
 
@@ -155,7 +156,9 @@ Other properties and methods offered by `GeneSets` include:
 
 ## Installing GSEA implementations
 
-#### Installing GSEA from Broad Institute
+Following GSEA implementations are supported:
+
+### GSEA from Broad Institute
 
 Login/register on [the official GSEA website](http://software.broadinstitute.org/gsea/login.jsp) and download the `gsea_3.0.jar` file (or a newer version).
 
@@ -165,7 +168,7 @@ Provide the location of the downloaded file to `GSEADesktop()` using `gsea_jar_p
 gsea = GSEADesktop(gsea_jar_path='downloads/gsea_3.0.jar')
 ```
 
-#### Installing GSEApy
+### GSEApy
 
 To use gsea.py please install it with:
 
@@ -187,11 +190,11 @@ from gsea_api.gsea import GSEApy
 gsea = GSEApy()
 ```
 
-#### Installing cudaGSEA
+### cudaGSEA
 
 Please clone this fork of cudaGSEA to thirdparty directory and compile the binary version (using the instructions from [this repository](https://github.com/krassowski/cudaGSEA)):
 
-```
+```bash
 git clone https://github.com/krassowski/cudaGSEA
 ```
 
