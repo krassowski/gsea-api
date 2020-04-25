@@ -3,8 +3,6 @@ from tempfile import TemporaryDirectory
 
 from pandas import read_csv
 
-from ..paths import third_party_dir
-
 from .base import GSEA
 
 
@@ -12,14 +10,12 @@ class GSEApy(GSEA):
     """
     To use gsea.py please install it with:
         >>> pip3 install gseapy
-    and link its binary to the thirdparty directory
-        >>> ln -s virtual_environment_path/bin/gseapy thirdparty/gseapy
     """
 
-    path = Path(third_party_dir / 'gseapy')
-
-    def __init__(self, **kwargs):
+    def __init__(self, path='gseapy', **kwargs):
         super().__init__(**kwargs)
+
+        self.path = Path(path)
 
         if not self.path.exists():
             print(self.__doc__)
@@ -33,18 +29,14 @@ class GSEApy(GSEA):
     }
 
     def run(
-        self, expression_data, gene_sets='KEGG_2016', metric='signal_to_noise', id_type='symbols',
+        self, expression_data, gene_sets='KEGG_2016', metric='signal_to_noise',
         permutations=1000, permutation_type='phenotype', verbose=True,
         program='gsea', processes=8, plot=False, out_dir=None, **kwargs
     ):
 
         super().run(expression_data, gene_sets, metric=metric)
 
-        if not gene_sets.endswith('.gmt'):
-            if gene_sets in self.libraries:
-                assert id_type == 'symbols'
-            else:
-                gene_sets = self.msigdb.resolve(gene_sets, id_type)
+        gene_sets = self.solve_gene_sets(gene_sets)
 
         with TemporaryDirectory() as temp_dir:
             out_dir = self.prepare_out_dir(out_dir, temp_dir)

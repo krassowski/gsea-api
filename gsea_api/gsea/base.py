@@ -4,7 +4,7 @@ from os import remove
 from pathlib import Path
 from subprocess import Popen, PIPE
 from tempfile import NamedTemporaryFile
-from typing import Set
+from typing import Set, Union
 from warnings import warn
 
 from pandas import DataFrame
@@ -12,6 +12,7 @@ from jupyter_helpers.following_tail import FollowingTail
 
 from abc import ABC, abstractmethod, abstractproperty
 
+from ..molecular_signatures_db import GeneSets
 from ..streams import handle_streams
 from ..expression_set import ExpressionSet
 
@@ -25,7 +26,6 @@ class GSEA(ABC):
         self._original_display = display
         self.display = self.get_display(display)
         self.display_error = display_error
-        #self.msigdb = MolecularSignaturesDatabase()
 
     @staticmethod
     def get_display(display):
@@ -97,7 +97,11 @@ class GSEA(ABC):
         return True
 
     @abstractmethod
-    def run(self, expression_data: ExpressionSet, gene_sets: str, metric: str = None, **kwargs) -> DataFrame:
+    def run(
+        self,
+        expression_data: ExpressionSet, gene_sets: Union[str, GeneSets],
+        metric: str = None, **kwargs
+    ) -> DataFrame:
         """Run the GSEA method using case and control data from given expression object.
 
         Raises:
@@ -113,3 +117,14 @@ class GSEA(ABC):
     def clean_up(data_path, classes_path):
         remove(data_path)
         remove(classes_path)
+
+    @staticmethod
+    def solve_gene_sets(gene_sets):
+        if isinstance(gene_sets, GeneSets):
+            if gene_sets.path:
+                gene_sets = gene_sets.path
+            else:
+                with NamedTemporaryFile(mode='w', delete=False, suffix= '.gmt') as f:
+                    gene_sets.to_gmt(f)
+                    gene_sets = f.name
+        return gene_sets

@@ -1,7 +1,9 @@
+from typing import Union
 from warnings import warn
 
 from pandas import DataFrame
 
+from ..molecular_signatures_db import GeneSets
 from ..paths import third_party_dir
 from ..streams import handle_streams
 
@@ -67,8 +69,8 @@ class cudaGSEA(GSEA):
     }
 
     def run(
-        self, expression_data: ExpressionSet, gene_sets: str,
-        metric='twopass_signal2noise', id_type='symbols',
+        self, expression_data: ExpressionSet, gene_sets: Union[str, GeneSets],
+        metric='twopass_signal2noise',
         permutations=1000, permutation_type='phenotype',
         verbose=False, delete=True, **kwargs
     ):
@@ -76,8 +78,7 @@ class cudaGSEA(GSEA):
 
         assert permutation_type == 'phenotype'
 
-        if not gene_sets.endswith('.gmt'):
-            gene_sets = self.msigdb.resolve(gene_sets, id_type)
+        gene_sets = self.solve_gene_sets(gene_sets)
 
         data_path, classes_path = self.prepare_files(expression_data)
 

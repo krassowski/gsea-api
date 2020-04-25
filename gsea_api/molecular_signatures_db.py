@@ -54,9 +54,10 @@ class GeneSet:
 
 class GeneSets:
 
-    def __init__(self, gene_sets: Collection[GeneSet], name='', allow_redundant=False, remove_empty=True):
+    def __init__(self, gene_sets: Collection[GeneSet], name='', allow_redundant=False, remove_empty=True, path=None):
         self.gene_sets = tuple(gene_sets)   # NOTE: this is not final
         self.name = name
+        self.path = path
         if not allow_redundant:
             redundant = self.find_redundant()
             if any(redundant):
@@ -113,6 +114,7 @@ class GeneSets:
                     for line in f
                 },
                 name=name or Path(path).name,
+                path=path,
                 **kwargs
             )
 

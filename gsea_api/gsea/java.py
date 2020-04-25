@@ -2,13 +2,14 @@ import re
 from glob import glob
 from pathlib import Path
 from shutil import rmtree
-from tempfile import TemporaryDirectory, NamedTemporaryFile
+from tempfile import TemporaryDirectory
 from typing import Union
 from warnings import warn
 
 from pandas import read_table, DataFrame
 
 from .base import GSEA
+from ..molecular_signatures_db import GeneSets
 from ..paths import tmp_dir, third_party_dir
 
 
@@ -68,7 +69,7 @@ class GSEADesktop(GSEA):
 
     def run(
         # Common GSEA interface
-        self, expression_data, gene_sets, metric='Signal2Noise', id_type='symbols',
+        self, expression_data, gene_sets: Union[str, GeneSets], metric='Signal2Noise',
         permutations=1000, permutation_type='phenotype', verbose=False,
         # GSEADesktop-specific
         collapse=True, mode='Max_probe', detailed_sets_analysis=False, out_dir=None,
@@ -82,15 +83,7 @@ class GSEADesktop(GSEA):
         """Memory in MB"""
         super().run(expression_data, gene_sets, metric=metric)
 
-        if isinstance(gene_sets, str):
-            assert id_type in {'symbols', 'entrez'}
-
-            if not gene_sets.endswith('.gmt'):
-                gene_sets = self.msigdb.resolve(gene_sets, id_type)
-        else:
-            with NamedTemporaryFile(mode='w', delete=False, suffix='.gmt') as f:
-                gene_sets.to_gmt(f)
-                gene_sets = f.name
+        gene_sets = self.solve_gene_sets(gene_sets)
 
         assert permutation_type in {'Gene_set', 'phenotype'}
         assert metric in {'Diff_of_Classes', 'log2_Ratio_of_Classes', 'Ratio_of_Classes' 'tTest', 'Signal2Noise'}
@@ -143,3 +136,4 @@ class GSEADesktop(GSEA):
             self.clean_up(data_path, classes_path)
 
         return results
+

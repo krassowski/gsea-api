@@ -176,12 +176,6 @@ To use gsea.py please install it with:
 pip3 install gseapy
 ```
 
-and link its binary to the `thirdparty` directory
-```
-ln -s virtual_environment_path/bin/gseapy thirdparty/gseapy
-```
-
-
 Use it with:
 
 ```python
