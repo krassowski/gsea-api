@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Union
 from warnings import warn
 
@@ -12,15 +13,12 @@ from ..expression_set import ExpressionSet
 from .base import GSEA
 from .exceptions import GSEANoResults
 
-#from pathlib import Path
-#third_party_dir = Path(third_party_dir)
-
 
 class cudaGSEA(GSEA):
-    path = third_party_dir / 'cudaGSEA/cudaGSEA/src/cudaGSEA'
 
-    def __init__(self, fdr='full', use_cpu=False, **kwargs):
+    def __init__(self, fdr='full', use_cpu=False, path=third_party_dir / 'cudaGSEA/cudaGSEA/src/cudaGSEA', **kwargs):
         super().__init__(**kwargs)
+        self.path = Path(path)
         assert self.path.exists()
         self.fdr = fdr
         self.log_tail = []
@@ -105,7 +103,7 @@ class cudaGSEA(GSEA):
         )
 
         if results.empty:
-            last_line = self.log_tail[-1]
+            last_line = self.log_tail[-1] if self.log_tail else ''
             if 'error' in last_line.lower():
                 if not verbose:
                     print('Command:', command)
@@ -129,7 +127,4 @@ class cudaGSEA(GSEA):
             'FDR': 'fdr_q-val'
         }, axis=1)
 
-        return {
-            expression_data.case_name: results[results.nes > 0],
-            expression_data.control_name: results[results.nes < 0]
-        }
+        return results

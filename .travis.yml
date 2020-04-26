@@ -12,6 +12,8 @@ install:
   - pip install -r requirements.txt
   - pip install -r tests/requirements.txt
   - pip3 install gseapy
+  - git clone https://github.com/krassowski/cudaGSEA
+  - touch cudaGSEA/cudaGSEA/src/cudaGSEA
 
 
 script:
