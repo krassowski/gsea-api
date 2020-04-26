@@ -12,7 +12,7 @@ install:
   - pip install -r requirements.txt
   - pip install -r tests/requirements.txt
   - pip3 install gseapy
-  - git clone https://github.com/krassowski/cudaGSEA
+  - mkdir -p cudaGSEA/cudaGSEA/src
   - touch cudaGSEA/cudaGSEA/src/cudaGSEA
 
 
