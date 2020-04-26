@@ -1,5 +1,6 @@
 # GSEA API for Pandas
-[![Build Status](https://travis-ci.com/krassowski/gsea-api.svg?branch=master)](https://travis-ci.com/krassowski/gsea-api) 
+[![Build Status](https://travis-ci.com/krassowski/gsea-api.svg?branch=master)](https://travis-ci.com/krassowski/gsea-api)
+[![codecov](https://codecov.io/gh/krassowski/gsea-api/branch/master/graph/badge.svg)](https://codecov.io/gh/krassowski/gsea-api)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
 [![DOI](https://zenodo.org/badge/188071398.svg)](https://zenodo.org/badge/latestdoi/188071398)
 
@@ -186,13 +187,23 @@ gsea = GSEApy()
 
 ### cudaGSEA
 
-Please clone this fork of cudaGSEA to thirdparty directory and compile the binary version (using the instructions from [this repository](https://github.com/krassowski/cudaGSEA)):
+Please clone this [fork of cudaGSEA](https://github.com/krassowski/cudaGSEA) and compile the binary version:
 
 ```bash
 git clone https://github.com/krassowski/cudaGSEA
+cd cudaGSEA/cudaGSEA/src/
+# if on Ubuntu:
+# sudo apt install nvidia-cuda-toolkit
+# whereis nvcc
+export CUDA_HOME=/usr
+export R_INC=/usr/share/R/include
+export RCPP_INC=/usr/local/lib/R/site-library/Rcpp/include
+make cudaGSEA
 ```
 
-or use [the original version](https://github.com/gravitino/cudaGSEA), which does not implement FDR calculations.
+depending on your GPU and drivers you may see `Unsupported gpu architecture 'compute_20'` error; simply edit `Makefile` removing `-gencode arch=compute_20,code=compute_20` (see [this askUbuntu post](https://askubuntu.com/questions/960238/nvcc-fatal-unsupported-gpu-architecture-compute-20))
+
+You can also try to use [the original version](https://github.com/gravitino/cudaGSEA), which does not implement FDR calculations.
 
 Use it with:
 
@@ -200,7 +211,7 @@ Use it with:
 from gsea_api.gsea import cudaGSEA
 
 # CPU implementation can be used with use_cpu=True
-gsea = cudaGSEA(fdr='full', use_cpu=False)
+gsea = cudaGSEA(fdr='full', use_cpu=False, path='cudaGSEA/cudaGSEA/src/cudaGSEA')
 ```
 
 ## Citation
