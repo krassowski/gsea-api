@@ -182,7 +182,17 @@ class GeneSets:
         }
         assert len(self.gene_sets) == len(by_name)
         return by_name
+    
+    def to_rpy2(self):
+        from rpy2.robjects.vectors import ListVector, StrVector
 
+        data = {
+            name: StrVector(list(gene_set.genes))
+            for name, gene_set in self.gene_sets_by_name.items()
+        }
+        r_data = ListVector(data)
+        return r_data
+    
     def __len__(self):
         return len(self.gene_sets)
 
