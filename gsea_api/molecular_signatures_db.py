@@ -11,10 +11,11 @@ from pandas import DataFrame
 
 class GeneSet:
 
-    def __init__(self, name: str, genes: Collection[str], description: str = None, warn_if_empty=True):
+    def __init__(self, name: str, genes: Collection[str], description: str = None, warn_if_empty=True, representativeness=None):
         self.name = name
         self.genes = frozenset(genes)
         self.description = description
+        self.representativeness = representativeness
 
         if warn_if_empty and self.is_empty:
             warn(f'GeneSet {repr(name)} is empty')
@@ -54,11 +55,10 @@ class GeneSet:
 
 class GeneSets:
 
-    def __init__(self, gene_sets: Collection[GeneSet], name='', allow_redundant=False, remove_empty=True, path=None, representativeness=None):
+    def __init__(self, gene_sets: Collection[GeneSet], name='', allow_redundant=False, remove_empty=True, path=None):
         self.gene_sets = tuple(gene_sets)   # NOTE: this is not final
         self.name = name
         self.path = path
-        self.representativeness = representativeness
         if not allow_redundant:
             redundant = self.find_redundant()
             if any(redundant):
