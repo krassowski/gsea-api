@@ -54,10 +54,11 @@ class GeneSet:
 
 class GeneSets:
 
-    def __init__(self, gene_sets: Collection[GeneSet], name='', allow_redundant=False, remove_empty=True, path=None):
+    def __init__(self, gene_sets: Collection[GeneSet], name='', allow_redundant=False, remove_empty=True, path=None, representativeness=None):
         self.gene_sets = tuple(gene_sets)   # NOTE: this is not final
         self.name = name
         self.path = path
+        self.representativeness = representativeness
         if not allow_redundant:
             redundant = self.find_redundant()
             if any(redundant):
@@ -141,12 +142,15 @@ class GeneSets:
         else:
             self._to_gmt(path)
 
-    def subset(self, genes: Iterable[str]):
+    def subset(self, genes: Iterable[str], min_representation: float = 0):
         if not isinstance(genes, set):
             genes = set(genes)
         return GeneSets({
-            GeneSet(name=gene_set.name, genes=gene_set.genes & genes, warn_if_empty=False)
+            GeneSet(name=gene_set.name, genes=genes_in_overlap, warn_if_empty=False, representativeness=representativeness)
             for gene_set in self.gene_sets
+            for genes_in_overlap in [gene_set.genes & genes]
+            for representativeness in [len(genes_in_overlap) / len(gene_set.genes)]
+            if representativeness >= min_representation
         })
 
     @property
