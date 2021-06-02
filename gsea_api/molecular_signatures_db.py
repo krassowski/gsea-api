@@ -163,19 +163,32 @@ class GeneSets:
 
         return all_genes
 
-    def to_frame(self) -> DataFrame:
-        all_genes = self.all_genes
-        return DataFrame(
-            [
+    def to_frame(self, format='wide') -> DataFrame:
+        assert format in {'wide', 'long'}
+        if format == 'wide':
+            all_genes = self.all_genes
+            return DataFrame(
                 [
-                    gene in gene_set.genes
-                    for gene in all_genes
+                    [
+                        gene in gene_set.genes
+                        for gene in all_genes
+                    ]
+                    for gene_set in self.gene_sets
+                ],
+                index=[gene_set.name for gene_set in self.gene_sets],
+                columns=all_genes
+            )
+        if format == 'long':
+            return DataFrame(
+                [
+                    {
+                        'name': gene_set.name,
+                        'description': gene_set.description,
+                        'genes': gene_set.genes
+                    }
+                    for gene_set in self.gene_sets
                 ]
-                for gene_set in self.gene_sets
-            ],
-            index=[gene_set.name for gene_set in self.gene_sets],
-            columns=all_genes
-        )
+            )
 
     @property
     @lru_cache()
