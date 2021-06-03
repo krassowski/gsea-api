@@ -59,7 +59,7 @@ TP53	2.3	0.2	2.1	2.0	0.3	0.6
 
 [Molecular Signatures Database](https://www.gsea-msigdb.org/gsea/msigdb/index.jsp) (MSigDB) can be downloaded from the [Broad Institute GSEA website](https://www.gsea-msigdb.org/gsea/downloads.jsp). It provides expert-curated gene set collections, as well as curated subset of pathway databases (Reactome, KEGG, Biocarta, Gene Ontology) trimmed to remove redundant, overlapping and and otherwise little-value terms (if needed).
 
-You can download all the pathways collections at once (search for `ZIPped MSigDB` on the download page). After downloading and un-zipping (e.g. to a local directory named `msigdb`), you can access the gene sets from MSigDB with:
+You can download all the pathways collections at once (search for `ZIPped MSigDB` on the download page). After downloading and un-zipping (e.g., to a local directory named `msigdb`), you can access the gene sets from MSigDB with:
 
 ```python
 from gsea_api.molecular_signatures_db import MolecularSignaturesDatabase
@@ -80,7 +80,7 @@ msigdb.gene_sets
 ]
 ```
 
-Information about the location on disk and version are avilable in `msigdb.path` and `msigdb.version`.
+Information about the location on disk and version are available in `msigdb.path` and `msigdb.version`.
 
 `msigdb.load` loads the specific collection into a `GeneSets` object:
 
@@ -90,7 +90,7 @@ Information about the location on disk and version are avilable in `msigdb.path`
 <GeneSets 'c2.cp.kegg' with 186 gene sets>
 ```
 
-This object can be passed to any of the supporteed GSEA implementations; please see below for a detailed description of the `GeneSets` object.
+This object can be passed to any of the supported GSEA implementations; please see below for a detailed description of the `GeneSets` object.
 
 ### `GeneSets` objects
 
@@ -116,7 +116,7 @@ The gene sets are accessible with `gene_sets` (tuple) and `gene_sets_by_name` (d
  }
 ```
 
-#### Subseting collections
+#### Subsetting collections
 
 Sometimes only a subset of genes is measured in an experiment. You can remove gene sets which do not contain any of the measured genes from the collection:
 
@@ -129,7 +129,7 @@ Sometimes only a subset of genes is measured in an experiment. You can remove ge
 
 The skipped gene sets are accessible in `measured_subset.empty_gene_sets` for inspection.
 
-#### Trimmming collections
+#### Trimming collections
 
 ```python
 > kegg_pathways.trim(min_genes=10, max_genes=20)
@@ -139,12 +139,23 @@ The skipped gene sets are accessible in `measured_subset.empty_gene_sets` for in
 #### Prettify names
 
 ```python
-def prettify_kegg_name(name):
-    return name.replace('KEGG_', '').replace('_', ' ')
+def prettify_kegg_name(gene_set):
+    return gene_set.name.replace('KEGG_', '').replace('_', ' ')
 
 kegg_pathways_pretty = kegg_pathways.format_names(prettify_kegg_name)
 kegg_pathways_pretty.gene_sets[:2]
 # (<GeneSet 'TIGHT JUNCTION' with 132 genes>, <GeneSet 'RNA DEGRADATION' with 59 genes>)
+```
+
+For MSigDB 7.4+:
+
+```python
+def pretty_reactome_name(gene_set):
+    return gene_set.metadata['DESCRIPTION_BRIEF']
+
+reactome_pathways_pretty = reactome_pathways.format_names(pretty_reactome_name)
+reactome_pathways_pretty.gene_sets[:2]
+#
 ```
 
 #### Other properties

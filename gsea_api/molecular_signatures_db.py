@@ -3,7 +3,7 @@ from collections import Counter, defaultdict
 from functools import lru_cache
 from glob import glob
 from pathlib import Path
-from typing import Collection, Dict, List, Iterable
+from typing import Collection, Dict, List, Iterable, Callable
 from warnings import warn
 from xml.etree import ElementTree
 
@@ -136,9 +136,9 @@ class GeneSets:
             if min_genes <= len(gene_set.genes) <= max_genes
         })
 
-    def format_names(self, formatter):
+    def format_names(self, formatter: Callable[['GeneSet'], str]):
         for gene_set in self.gene_sets:
-            gene_set.name = formatter(gene_set.name)
+            gene_set.name = formatter(gene_set)
         return self
 
     def _to_gmt(self, f):
