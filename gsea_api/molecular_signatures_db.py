@@ -5,17 +5,27 @@ from glob import glob
 from pathlib import Path
 from typing import Collection, Dict, List, Iterable
 from warnings import warn
+from xml.etree import ElementTree
 
 from pandas import DataFrame
 
 
 class GeneSet:
 
-    def __init__(self, name: str, genes: Collection[str], description: str = None, warn_if_empty=True, representativeness=None):
+    def __init__(
+        self,
+        name: str,
+        genes: Collection[str],
+        description: str = None,
+        warn_if_empty=True,
+        representativeness=None,
+        metadata: Dict[str, str] = None
+    ):
         self.name = name
         self.genes = frozenset(genes)
         self.description = description
         self.representativeness = representativeness
+        self.metadata = metadata or {}
 
         if warn_if_empty and self.is_empty:
             warn(f'GeneSet {repr(name)} is empty')
@@ -233,7 +243,7 @@ GeneMatrixTransposed = GeneSets
 
 
 class MolecularSignaturesDatabase:
-    def __init__(self, path, version='7.1'):
+    def __init__(self, path, version='7.4'):
         self.path = Path(path)
         if not self.path.exists():
             raise ValueError(f'Could not find MSigDB: {self.path} does not exist')
@@ -243,6 +253,23 @@ class MolecularSignaturesDatabase:
             self.parse_name(Path(p).name)
             for p in glob(wildcard_path)
         ]
+        self.xml_path = None
+        for candidate_dir in [self.path, self.path.parent]:
+            candidate_path = candidate_dir / f'msigdb_v{version}.xml'
+            if candidate_path.exists():
+                self.xml_path = candidate_path
+                break
+        
+    def add_metadata_from_xml(self, gene_sets: GeneSets, path: Path):
+        tree = ET.parse(str(path))
+        root = tree.getroot()
+
+        metadata_by_name = {
+            child.attrib['STANDARD_NAME']: child.attrib
+            for child in root.iter('GENESET')
+        }
+        for gene_set in self.gene_sets:
+            gene_set_copy.metadata = metadata_by_name[gene_set_copy.name]
 
     def parse_name(self, name):
         parsed = re.match(rf'(?P<name>.*?)\.v{self.version}\.(?P<id_type>(entrez|symbols)).gmt', name)
@@ -255,7 +282,12 @@ class MolecularSignaturesDatabase:
         else:
             raise ValueError(f'Unknown library: {path}!')
 
-    def load(self, gene_sets, id_type) -> GeneSets:
+    def load(self, gene_sets: str, id_type: str) -> GeneSets:
         path = self.resolve(gene_sets=gene_sets, id_type=id_type)
 
-        return GeneSets.from_gmt(path, name=gene_sets)
+        gene_sets = GeneSets.from_gmt(path, name=gene_sets)
+    
+        if xml_path:
+            gene_sets = self.add_metadata_from_xml(gene_sets, xml_path)
+
+        return gene_sets
