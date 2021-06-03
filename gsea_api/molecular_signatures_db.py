@@ -268,7 +268,7 @@ class MolecularSignaturesDatabase:
             child.attrib['STANDARD_NAME']: child.attrib
             for child in root.iter('GENESET')
         }
-        for gene_set in self.gene_sets:
+        for gene_set in gene_sets.gene_sets:
             gene_set.metadata = metadata_by_name[gene_set.name]
 
     def parse_name(self, name):
