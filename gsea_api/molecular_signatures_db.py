@@ -269,7 +269,7 @@ class MolecularSignaturesDatabase:
             for child in root.iter('GENESET')
         }
         for gene_set in self.gene_sets:
-            gene_set_copy.metadata = metadata_by_name[gene_set_copy.name]
+            gene_set.metadata = metadata_by_name[gene_set.name]
 
     def parse_name(self, name):
         parsed = re.match(rf'(?P<name>.*?)\.v{self.version}\.(?P<id_type>(entrez|symbols)).gmt', name)
