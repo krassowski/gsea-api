@@ -156,7 +156,10 @@ class GeneSets:
         if not isinstance(genes, set):
             genes = set(genes)
         return GeneSets({
-            GeneSet(name=gene_set.name, genes=genes_in_overlap, warn_if_empty=False, representativeness=representativeness)
+            GeneSet(
+                name=gene_set.name, genes=genes_in_overlap,
+                warn_if_empty=False, representativeness=representativeness
+            )
             for gene_set in self.gene_sets
             for genes_in_overlap in [gene_set.genes & genes]
             for representativeness in [len(genes_in_overlap) / len(gene_set.genes)]
@@ -173,9 +176,10 @@ class GeneSets:
 
         return all_genes
 
-    def to_frame(self, format='wide') -> DataFrame:
+    def to_frame(self, format='wide', include_metadata=False) -> DataFrame:
         assert format in {'wide', 'long'}
         if format == 'wide':
+            assert not include_metadata
             all_genes = self.all_genes
             return DataFrame(
                 [
@@ -194,11 +198,16 @@ class GeneSets:
                     {
                         'name': gene_set.name,
                         'description': gene_set.description,
-                        'genes': gene_set.genes
+                        'genes': gene_set.genes,
+                        **(
+                            gene_set.metadata
+                            if include_metadata else
+                            {}
+                        )
                     }
                     for gene_set in self.gene_sets
                 ]
-            )
+            ).set_index('name')
 
     @property
     @lru_cache()
@@ -260,7 +269,8 @@ class MolecularSignaturesDatabase:
                 self.xml_path = candidate_path
                 break
         
-    def add_metadata_from_xml(self, gene_sets: GeneSets, path: Path):
+    @staticmethod
+    def add_metadata_from_xml(gene_sets: GeneSets, path: Path):
         tree = ElementTree.parse(str(path))
         root = tree.getroot()
 

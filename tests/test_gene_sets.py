@@ -48,6 +48,15 @@ def test_to_frame():
         read_table(StringIO(expected_frame), index_col='gene_set').astype(bool)
     )
 
+    df_long = gene_sets.to_frame(format='long')
+    assert len(df_long) == 3
+    assert list(df_long.columns) == ['description', 'genes']
+
+    gene_sets.gene_sets[0].metadata = {'url': 'https://some.database/gene.set.details', 'author': 'set author'}
+    df_long_meta = gene_sets.to_frame(format='long', include_metadata=True)
+    assert len(df_long_meta) == 3
+    assert list(df_long_meta.columns) == ['description', 'genes', 'url', 'author']
+
 
 def test_gene_sets():
     identical_gene_sets = r"'behavioral response to chemical pain' and 'behavioral response to formalin induced pain' \(2 genes\)"
