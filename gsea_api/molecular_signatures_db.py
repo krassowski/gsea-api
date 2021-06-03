@@ -261,7 +261,7 @@ class MolecularSignaturesDatabase:
                 break
         
     def add_metadata_from_xml(self, gene_sets: GeneSets, path: Path):
-        tree = ET.parse(str(path))
+        tree = ElementTree.parse(str(path))
         root = tree.getroot()
 
         metadata_by_name = {
