@@ -152,6 +152,14 @@ class GeneSets:
         else:
             self._to_gmt(path)
 
+    def extract(self, set_names: Iterable[str]):
+        set_names = set(set_names)
+        return GeneSets({
+            gene_set
+            for gene_set in self.gene_sets
+            if gene_set.name in set_names
+        })
+
     def subset(self, genes: Iterable[str], min_representation: float = 0):
         if not isinstance(genes, set):
             genes = set(genes)
