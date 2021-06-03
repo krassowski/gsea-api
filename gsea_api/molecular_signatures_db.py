@@ -287,7 +287,7 @@ class MolecularSignaturesDatabase:
 
         gene_sets = GeneSets.from_gmt(path, name=gene_sets)
     
-        if xml_path:
-            gene_sets = self.add_metadata_from_xml(gene_sets, xml_path)
+        if self.xml_path:
+            self.add_metadata_from_xml(gene_sets, self.xml_path)
 
         return gene_sets
