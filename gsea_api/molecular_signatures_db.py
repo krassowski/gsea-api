@@ -3,7 +3,7 @@ from collections import Counter, defaultdict
 from functools import lru_cache
 from glob import glob
 from pathlib import Path
-from typing import Collection, Dict, List, Iterable, Callable
+from typing import Collection, Dict, List, Iterable, Callable, Union, TextIO, Set
 from warnings import warn
 from xml.etree import ElementTree
 
@@ -17,8 +17,8 @@ class GeneSet:
         name: str,
         genes: Collection[str],
         description: str = None,
-        warn_if_empty=True,
-        representativeness=None,
+        warn_if_empty: bool = True,
+        representativeness: float = None,
         metadata: Dict[str, str] = None
     ):
         self.name = name
@@ -65,18 +65,31 @@ class GeneSet:
 
 class GeneSets:
 
-    def __init__(self, gene_sets: Collection[GeneSet], name='', allow_redundant=False, remove_empty=True, path=None):
+    def __init__(
+        self,
+        gene_sets: Collection[GeneSet],
+        name: str = '',
+        allow_redundant: bool = False,
+        remove_empty: bool = True,
+        path: Union[str, Path] = None,
+        collapse_redundant: Union[str, bool] = False
+    ):
         self.gene_sets = tuple(gene_sets)   # NOTE: this is not final
         self.name = name
         self.path = path
+
+        redundant = self.find_redundant()
+        redundant_gene_sets_n = len(sum(redundant.values(), []))
+        self.redundant = redundant
+
         if not allow_redundant:
-            redundant = self.find_redundant()
-            if any(redundant):
+            # do not warn if we will be collapsing anyways
+            if any(redundant) and not collapse_redundant:
                 message = 'Provided gene sets are not redundant; '
-                if len(redundant) > 3:
+                if redundant_gene_sets_n > 3:
                     message += (
-                        f'there are {len(redundant)} gene sets having more than one name assigned; '
-                        'use `find_redundant()` to investigate further.'
+                        f'there are {len(redundant)} gene sets having more than one name assigned,'
+                        f' in total affecting {redundant_gene_sets_n} gene sets'
                     )
                 else:
                     identical = ', '.join(
@@ -84,6 +97,10 @@ class GeneSets:
                         for gene_set, pathways in redundant.items()
                     )
                     message += f'following gene sets are identical: {identical}'
+                message += (
+                    '; use `.find_redundant()` to investigate further,'
+                    ' or collapse them by passing `collapse_redundant: str`.'
+                )
                 warn(message)
 
         empty_gene_sets = {gene_set for gene_set in gene_sets if gene_set.is_empty}
@@ -99,6 +116,31 @@ class GeneSets:
             if remove_empty:
                 gene_sets = set(gene_sets) - empty_gene_sets
                 warn(f'{len(empty_gene_sets)} empty gene sets were removed.')
+
+        if collapse_redundant:
+            redundant = self.find_redundant()
+            redundant_gene_frozen_sets = {
+                frozen_genes
+                for frozen_genes in redundant.keys()
+            }
+            non_redundant_gene_sets = [
+                gene_set
+                for gene_set in gene_sets
+                if frozenset(gene_set.genes) not in redundant_gene_frozen_sets
+            ]
+            collapsed_redundant_gene_sets = [
+                GeneSet(
+                    genes=frozen_genes,
+                    name=collapse_redundant.join(names)
+                )
+                for frozen_genes, names in redundant.items()
+            ]
+            warn(
+                f'Collapsed {redundant_gene_sets_n} redundant gene sets'
+                f' into {len(redundant)} non-redundant sets,'
+                f' concatenating their names with {repr(collapse_redundant)}'
+            )
+            gene_sets = collapsed_redundant_gene_sets + non_redundant_gene_sets
 
         self.empty_gene_sets = empty_gene_sets
         self.gene_sets = tuple(gene_sets)
@@ -141,12 +183,12 @@ class GeneSets:
             gene_set.name = formatter(gene_set)
         return self
 
-    def _to_gmt(self, f):
+    def _to_gmt(self, f: TextIO):
         for gene_set in self.gene_sets:
             f.write(gene_set.name + '\t' + '\t'.join(gene_set.genes) + '\n')
 
-    def to_gmt(self, path):
-        if isinstance(path, str):
+    def to_gmt(self, path: Union[TextIO, str, Path]):
+        if isinstance(path, str) or isinstance(path, Path):
             with open(path, mode='w') as f:
                 self._to_gmt(f)
         else:
@@ -176,7 +218,7 @@ class GeneSets:
 
     @property
     @lru_cache()
-    def all_genes(self):
+    def all_genes(self) -> Set:
         all_genes = set()
 
         for gene_set in self.gene_sets:
@@ -184,7 +226,7 @@ class GeneSets:
 
         return all_genes
 
-    def to_frame(self, format='wide', include_metadata=False) -> DataFrame:
+    def to_frame(self, format='wide', include_metadata: bool = False) -> DataFrame:
         assert format in {'wide', 'long'}
         if format == 'wide':
             assert not include_metadata
@@ -219,7 +261,7 @@ class GeneSets:
 
     @property
     @lru_cache()
-    def gene_sets_by_name(self):
+    def gene_sets_by_name(self) -> Dict[str, GeneSet]:
         by_name = {
             gene_set.name: gene_set
             for gene_set in self.gene_sets

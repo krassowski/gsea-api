@@ -77,13 +77,27 @@ def test_gene_sets():
     # subset() should accept any iterable, not only sets
     assert subset == gene_sets.subset(['ASHL1', 'KDM5B'])
 
-    warning_text = f'Provided gene sets are not redundant; there are 10 gene sets having more than one name assigned'
+    warning_text = (
+        f'Provided gene sets are not redundant; there are 10 gene sets having more than one name assigned,'
+        ' in total affecting 20 gene sets'
+    )
     with warns(UserWarning, match=warning_text):
         gene_sets = GeneSets([
             GeneSet('duplicated set', [f'G{i}', f'H{i}'])
             for i in range(10)
             for _ in range(2)
         ])
+
+    warning_text = f'Collapsed 20 redundant gene sets into 10 non-redundant sets, concatenating their names with \', \''
+    with warns(UserWarning, match=warning_text):
+        gene_sets = GeneSets(
+            [
+                GeneSet(f'duplicated set {_}', [f'G{i}', f'H{i}'])
+                for i in range(10)
+                for _ in range(2)
+            ],
+            collapse_redundant=', '
+        )
 
     with warns(UserWarning, match='There are 2 empty gene sets.*'):
         gene_sets = GeneSets([

@@ -19,6 +19,7 @@ if __name__ == '__main__':
     setup(
         name='gsea_api',
         packages=find_packages(),
+        package_data={'gsea_api': ['py.typed']},
         version='0.3.4',
         license='MIT',
         description='Pandas API for Gene Set Enrichment Analysis in Python (GSEApy, cudaGSEA, GSEA)',
@@ -26,6 +27,10 @@ if __name__ == '__main__':
         author='Michal Krassowski',
         author_email='krassowski.michal+pypi@gmail.com',
         url='https://github.com/krassowski/gsea-api',
+        project_urls={
+            'Bug Tracker': 'https://github.com/krassowski/gsea-api/issues',
+            'Source Code': 'https://github.com/krassowski/gsea-api'
+        },
         keywords=['gsea', 'gene', 'set', 'enrichment', 'cuda', 'pandas', 'api', 'GSEApy', 'cudaGSEA'],
         classifiers=[
             'Development Status :: 4 - Beta',
