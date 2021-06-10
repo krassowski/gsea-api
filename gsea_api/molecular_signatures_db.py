@@ -194,7 +194,7 @@ class GeneSets:
 
     def format_names(self, formatter: Callable[[GeneSet], str]) -> 'GeneSets':
         result = deepcopy(self)
-        for gene_set in self.gene_sets:
+        for gene_set in result.gene_sets:
             gene_set.name = formatter(gene_set)
         return result
 
