@@ -128,8 +128,7 @@ class GeneSets:
                 )
                 warn(f'There are {len(empty_gene_sets)} empty gene sets: {empty_message}')
 
-        if collapse_redundant:
-            redundant = self.find_redundant()
+        if collapse_redundant and any(redundant):
             redundant_gene_frozen_sets = {
                 frozen_genes
                 for frozen_genes in redundant.keys()
