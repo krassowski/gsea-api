@@ -99,11 +99,17 @@ def test_gene_sets():
             collapse_redundant=', '
         )
 
+    two_empty = [
+        GeneSet('empty gene set 1', genes=[], warn_if_empty=False),
+        GeneSet('empty gene set 2', genes=[], warn_if_empty=False)
+    ]
     with warns(UserWarning, match='There are 2 empty gene sets.*'):
-        gene_sets = GeneSets([
-            GeneSet('empty gene set 1', genes=[], warn_if_empty=False),
-            GeneSet('empty gene set 2', genes=[], warn_if_empty=False)
-        ])
+        gene_sets = GeneSets(two_empty, remove_empty=False)
+        assert len(gene_sets) == 2
+        assert len(gene_sets.empty_gene_sets) == 2
+
+    with warns(UserWarning, match='2 empty gene sets were removed'):
+        gene_sets = GeneSets(two_empty)
         assert len(gene_sets) == 0
         assert len(gene_sets.empty_gene_sets) == 2
 
