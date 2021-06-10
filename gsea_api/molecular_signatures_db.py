@@ -1,5 +1,6 @@
 import re
 from collections import Counter, defaultdict
+from copy import deepcopy
 from functools import lru_cache
 from glob import glob
 from pathlib import Path
@@ -45,7 +46,7 @@ class GeneSet:
         return cls(name, ids, description, **kwargs)
 
     @property
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return len(self.genes) == 0
 
     def __repr__(self):
@@ -171,17 +172,21 @@ class GeneSets:
                 **kwargs
             )
 
-    def trim(self, min_genes: int = 0, max_genes: int = float('Inf')):
+    def trim(self, min_genes: int = 0, max_genes: int = float('Inf')) -> 'GeneSets':
         return GeneSets({
             gene_set
             for gene_set in self.gene_sets
             if min_genes <= len(gene_set.genes) <= max_genes
         })
 
-    def format_names(self, formatter: Callable[['GeneSet'], str]):
+    def collapse_redundant(self, sep: str) -> 'GeneSets':
+        return GeneSets(self.gene_sets, collapse_redundant=sep)
+
+    def format_names(self, formatter: Callable[[GeneSet], str]) -> 'GeneSets':
+        result = deepcopy(self)
         for gene_set in self.gene_sets:
             gene_set.name = formatter(gene_set)
-        return self
+        return result
 
     def _to_gmt(self, f: TextIO):
         for gene_set in self.gene_sets:
@@ -194,7 +199,7 @@ class GeneSets:
         else:
             self._to_gmt(path)
 
-    def extract(self, set_names: Iterable[str]):
+    def extract(self, set_names: Iterable[str]) -> 'GeneSets':
         set_names = set(set_names)
         return GeneSets({
             gene_set
@@ -202,7 +207,7 @@ class GeneSets:
             if gene_set.name in set_names
         })
 
-    def subset(self, genes: Iterable[str], min_representation: float = 0):
+    def subset(self, genes: Iterable[str], min_representation: float = 0) -> 'GeneSets':
         if not isinstance(genes, set):
             genes = set(genes)
         return GeneSets({
@@ -320,7 +325,7 @@ class MolecularSignaturesDatabase:
                 break
         
     @staticmethod
-    def add_metadata_from_xml(gene_sets: GeneSets, path: Path):
+    def add_metadata_from_xml(gene_sets: GeneSets, path: Union[Path, str]):
         tree = ElementTree.parse(str(path))
         root = tree.getroot()
 
@@ -335,10 +340,10 @@ class MolecularSignaturesDatabase:
         parsed = re.match(rf'(?P<name>.*?)\.v{self.version}\.(?P<id_type>(entrez|symbols)).gmt', name)
         return parsed.groupdict()
 
-    def resolve(self, gene_sets, id_type):
+    def resolve(self, gene_sets, id_type) -> Path:
         path = self.path / f'{gene_sets}.v{self.version}.{id_type}.gmt'
         if path.exists():
-            return str(path)
+            return path
         else:
             raise ValueError(f'Unknown library: {path}!')
 
