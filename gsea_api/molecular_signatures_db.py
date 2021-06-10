@@ -4,7 +4,7 @@ from copy import deepcopy
 from functools import lru_cache
 from glob import glob
 from pathlib import Path
-from typing import Collection, Dict, List, Iterable, Callable, Union, TextIO, Set
+from typing import Collection, Dict, List, Iterable, Callable, Union, TextIO, Set, TypeVar
 from warnings import warn
 from xml.etree import ElementTree
 
@@ -62,6 +62,16 @@ class GeneSet:
 
     def __hash__(self):
         return hash((self.name, self.genes))
+
+
+T = TypeVar('T')
+
+
+def lru_cache_mypy(func: Callable[..., T]) -> T:
+    """Workaround for mypy issue with lru_cache on property see:
+    https://github.com/python/mypy/issues/5858#issuecomment-454144705
+    """
+    return lru_cache()(func)  # type: ignore
 
 
 class GeneSets:
@@ -222,7 +232,7 @@ class GeneSets:
         })
 
     @property
-    @lru_cache()
+    @lru_cache_mypy
     def all_genes(self) -> Set:
         all_genes = set()
 
@@ -265,7 +275,7 @@ class GeneSets:
             ).set_index('name')
 
     @property
-    @lru_cache()
+    @lru_cache_mypy
     def gene_sets_by_name(self) -> Dict[str, GeneSet]:
         by_name = {
             gene_set.name: gene_set
