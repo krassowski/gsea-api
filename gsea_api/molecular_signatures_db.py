@@ -129,7 +129,6 @@ class GeneSets:
                 )
                 warn(message)
 
-
         if collapse_redundant and any(redundant):
             redundant_gene_frozen_sets = {
                 frozen_genes
@@ -142,11 +141,11 @@ class GeneSets:
             ]
             for frozen_genes, names in redundant.items():
                 if len(names) > collapse_limit:
-                    examples = ','.join(names[:3])
+                    examples = ', '.join(names[:2])
                     warn(
                         f'Redundant collection of {len(names)} gene sets which includes {examples} (among others)'
                         f' exceeds the provided `collapse_limit` ({collapse_limit}) and only as many'
-                        f' names will be included in the collapse gene set.'
+                        f' names will be included in the collapsed gene set.'
                     )
             collapsed_redundant_gene_sets = [
                 GeneSet(
@@ -203,8 +202,8 @@ class GeneSets:
             if min_genes <= len(gene_set.genes) <= max_genes
         })
 
-    def collapse_redundant(self, sep: str) -> 'GeneSets':
-        return GeneSets(self.gene_sets, collapse_redundant=sep)
+    def collapse_redundant(self, sep: str, max_names: int) -> 'GeneSets':
+        return GeneSets(self.gene_sets, collapse_redundant=sep, collapse_limit=max_names)
 
     def format_names(self, formatter: Callable[[GeneSet], str]) -> 'GeneSets':
         result = deepcopy(self)
