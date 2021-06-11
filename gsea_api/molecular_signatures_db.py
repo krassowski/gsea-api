@@ -83,7 +83,8 @@ class GeneSets:
         allow_redundant: bool = False,
         remove_empty: bool = True,
         path: Union[str, Path] = None,
-        collapse_redundant: Union[str, bool] = False
+        collapse_redundant: Union[str, bool] = False,
+        collapse_limit: int = 10
     ):
         self.gene_sets = tuple(gene_sets)   # NOTE: this is not final
         self.name = name
@@ -141,7 +142,11 @@ class GeneSets:
             collapsed_redundant_gene_sets = [
                 GeneSet(
                     genes=frozen_genes,
-                    name=collapse_redundant.join(names)
+                    name=collapse_redundant.join(names[:collapse_limit]) + (
+                        f'{collapse_redundant}... {len(names) - collapse_limit} more'
+                        if len(names) > collapse_limit else
+                        ''
+                    )
                 )
                 for frozen_genes, names in redundant.items()
             ]
