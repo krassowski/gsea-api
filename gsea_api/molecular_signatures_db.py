@@ -139,6 +139,14 @@ class GeneSets:
                 for gene_set in gene_sets
                 if frozenset(gene_set.genes) not in redundant_gene_frozen_sets
             ]
+            for frozen_genes, names in redundant.items():
+                if len(names) > collapse_limit:
+                    examples = ','.join(names[:3])
+                    warn(
+                        f'Redundant collection of {len(names)} gene sets which includes {examples} (among others)'
+                        f' exceeds the provided `collapse_limit` ({collapse_limit}) and only as many'
+                        f' names will be included in the collapse gene set.'
+                    )
             collapsed_redundant_gene_sets = [
                 GeneSet(
                     genes=frozen_genes,
@@ -146,7 +154,8 @@ class GeneSets:
                         f'{collapse_redundant}... {len(names) - collapse_limit} more'
                         if len(names) > collapse_limit else
                         ''
-                    )
+                    ),
+                    description=collapse_redundant.join(names)
                 )
                 for frozen_genes, names in redundant.items()
             ]
