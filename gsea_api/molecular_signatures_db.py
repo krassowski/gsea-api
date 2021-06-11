@@ -90,6 +90,20 @@ class GeneSets:
         self.name = name
         self.path = path
 
+        empty_gene_sets = {gene_set for gene_set in gene_sets if gene_set.is_empty}
+
+        if len(empty_gene_sets) != 0:
+            if remove_empty:
+                gene_sets = set(gene_sets) - empty_gene_sets
+                warn(f'{len(empty_gene_sets)} empty gene sets were removed.')
+            else:
+                empty_message = (
+                    ', '.join(gene_set.name for gene_set in empty_gene_sets)
+                    if len(empty_gene_sets) <= 5 else
+                    'use `empty_gene_sets` property to investigate further.'
+                )
+                warn(f'There are {len(empty_gene_sets)} empty gene sets: {empty_message}')
+
         redundant = self.find_redundant()
         redundant_gene_sets_n = len(sum(redundant.values(), []))
         self.redundant = redundant
@@ -115,19 +129,6 @@ class GeneSets:
                 )
                 warn(message)
 
-        empty_gene_sets = {gene_set for gene_set in gene_sets if gene_set.is_empty}
-
-        if len(empty_gene_sets) != 0:
-            if remove_empty:
-                gene_sets = set(gene_sets) - empty_gene_sets
-                warn(f'{len(empty_gene_sets)} empty gene sets were removed.')
-            else:
-                empty_message = (
-                    ', '.join(gene_set.name for gene_set in empty_gene_sets)
-                    if len(empty_gene_sets) <= 5 else
-                    'use `empty_gene_sets` property to investigate further.'
-                )
-                warn(f'There are {len(empty_gene_sets)} empty gene sets: {empty_message}')
 
         if collapse_redundant and any(redundant):
             redundant_gene_frozen_sets = {
