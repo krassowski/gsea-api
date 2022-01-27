@@ -155,7 +155,10 @@ class GeneSets:
                         if len(names) > collapse_limit else
                         ''
                     ),
-                    description=collapse_redundant.join(names)
+                    description=collapse_redundant.join(names),
+                    metadata={
+                        'original_gene_set_names': names
+                    }
                 )
                 for frozen_genes, names in redundant.items()
             ]
