@@ -1,4 +1,5 @@
 from io import StringIO
+from pathlib import Path
 from pandas import read_table
 
 from pytest import warns
@@ -37,6 +38,17 @@ def test_from_gmt():
     uterus_morphogenesis = pathways.gene_sets_by_name['GO:0061038']
     assert uterus_morphogenesis.description == 'uterus morphogenesis'
     assert uterus_morphogenesis.genes == frozenset('ASH1L	KDM5B	STRA6	WNT7A	WNT9B	NIPBL'.split())
+
+
+def test_to_gmt(tmp_path):
+    source_path = 'tests/gene_ontology_pathways.gmt'
+    path = tmp_path / 'test.gmt'
+
+    pathways = GeneSets.from_gmt(source_path)
+    pathways.to_gmt(path)
+    read = GeneSets.from_gmt(source_path)
+    path = tmp_path / 'test.gmt'
+    assert read == pathways
 
 
 def test_to_frame():

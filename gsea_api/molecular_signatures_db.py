@@ -216,7 +216,7 @@ class GeneSets:
 
     def _to_gmt(self, f: TextIO):
         for gene_set in self.gene_sets:
-            f.write(gene_set.name + '\t' + '\t'.join(gene_set.genes) + '\n')
+            f.write(gene_set.name + '\t' + (gene_set.description or '') + '\t' + '\t'.join(gene_set.genes) + '\n')
 
     def to_gmt(self, path: Union[TextIO, str, Path]):
         if isinstance(path, str) or isinstance(path, Path):
