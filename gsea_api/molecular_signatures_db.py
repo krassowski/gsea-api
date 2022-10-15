@@ -205,6 +205,13 @@ class GeneSets:
             if min_genes <= len(gene_set.genes) <= max_genes
         })
 
+    def filter(self, keep: Callable[[GeneSet], bool]) -> 'GeneSets':
+        return GeneSets({
+            gene_set
+            for gene_set in self.gene_sets
+            if keep(gene_set)
+        })
+
     def collapse_redundant(self, sep: str, max_names: int) -> 'GeneSets':
         return GeneSets(self.gene_sets, collapse_redundant=sep, collapse_limit=max_names)
 
