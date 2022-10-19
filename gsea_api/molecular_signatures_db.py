@@ -383,11 +383,11 @@ class MolecularSignaturesDatabase:
         root = tree.getroot()
         return root.iter('GENESET')
 
-    @staticmethod
-    def add_metadata_from_xml(gene_sets: GeneSets, path: Union[Path, str]):
+    @classmethod
+    def add_metadata_from_xml(self, gene_sets: GeneSets, path: Union[Path, str]):
         metadata_by_name = {
             child.attrib['STANDARD_NAME']: child.attrib
-            for child in self.iter_meta(path)
+            for child in self.iter_metadata_from_xml(path)
         }
         for gene_set in gene_sets.gene_sets:
             gene_set.metadata = metadata_by_name[gene_set.name]
