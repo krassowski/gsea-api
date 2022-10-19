@@ -147,17 +147,28 @@ class GeneSets:
                         f' exceeds the provided `collapse_limit` ({collapse_limit}) and only as many'
                         f' names will be included in the collapsed gene set.'
                     )
+            original_gene_sets_by_name = {
+                gene_set.name: gene_set
+                for gene_set in gene_sets
+            }
             collapsed_redundant_gene_sets = [
                 GeneSet(
                     genes=frozen_genes,
-                    name=collapse_redundant.join(names[:collapse_limit]) + (
+                    name=collapse_redundant.join(sorted(names)[:collapse_limit]) + (
                         f'{collapse_redundant}... {len(names) - collapse_limit} more'
                         if len(names) > collapse_limit else
                         ''
                     ),
-                    description=collapse_redundant.join(names),
+                    description=collapse_redundant.join([
+                        original_gene_sets_by_name[name].description
+                        for name in names
+                    ]),
                     metadata={
-                        'original_gene_set_names': names
+                        'original_gene_set_names': names,
+                        **self._merge_metadata([
+                            original_gene_sets_by_name[name].metadata
+                            for name in names
+                        ])
                     }
                 )
                 for frozen_genes, names in redundant.items()
@@ -171,6 +182,13 @@ class GeneSets:
 
         self.empty_gene_sets = empty_gene_sets
         self.gene_sets = tuple(gene_sets)
+
+    def _merge_metadata(self, metadata: List[Dict]) -> Dict:
+        result = defaultdict(list)
+        for d in metadata:
+            for k, v in d.items():
+                result[k].append(v)
+        return dict(result)
 
     def group_identical(self, key='name') -> Dict[frozenset, List[str]]:
         pathways_by_gene_set = defaultdict(list)
@@ -246,6 +264,8 @@ class GeneSets:
         return GeneSets({
             GeneSet(
                 name=gene_set.name, genes=genes_in_overlap,
+                description=gene_set.description,
+                metadata=gene_set.metadata,
                 warn_if_empty=False, representativeness=representativeness
             )
             for gene_set in self.gene_sets
@@ -356,15 +376,18 @@ class MolecularSignaturesDatabase:
             if candidate_path.exists():
                 self.xml_path = candidate_path
                 break
-        
+
     @staticmethod
-    def add_metadata_from_xml(gene_sets: GeneSets, path: Union[Path, str]):
+    def iter_metadata_from_xml(path: Union[Path, str]):
         tree = ElementTree.parse(str(path))
         root = tree.getroot()
+        return root.iter('GENESET')
 
+    @staticmethod
+    def add_metadata_from_xml(gene_sets: GeneSets, path: Union[Path, str]):
         metadata_by_name = {
             child.attrib['STANDARD_NAME']: child.attrib
-            for child in root.iter('GENESET')
+            for child in self.iter_meta(path)
         }
         for gene_set in gene_sets.gene_sets:
             gene_set.metadata = metadata_by_name[gene_set.name]
