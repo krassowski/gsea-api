@@ -306,7 +306,7 @@ class GeneSets:
         assert format in {'wide', 'long'}
         if format == 'wide':
             assert not include_metadata
-            all_genes = self.all_genes
+            all_genes = list(self.all_genes)
             return DataFrame(
                 [
                     [
