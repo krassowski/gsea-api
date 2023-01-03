@@ -8,7 +8,7 @@ from typing import Collection, Dict, List, Iterable, Callable, Union, TextIO, Se
 from warnings import warn
 from xml.etree import ElementTree
 
-from pandas import DataFrame
+from pandas import DataFrame, Series
 
 
 class GeneSet:
@@ -41,9 +41,13 @@ class GeneSet:
         self.redundant_genes = redundant_genes
 
     @classmethod
-    def from_gmt_line(cls, line, **kwargs):
+    def from_gmt_line(cls, line: str, **kwargs):
         name, description, *ids = line.strip().split('\t')
         return cls(name, ids, description, **kwargs)
+
+    @classmethod
+    def from_series(cls, series: Series, **kwargs):
+        return cls(series.name, list(series[series == True].index), **kwargs)
 
     @property
     def is_empty(self) -> bool:
@@ -204,7 +208,7 @@ class GeneSets:
         }
 
     @classmethod
-    def from_gmt(cls, path, name=None, **kwargs):
+    def from_gmt(cls, path: Union[str, Path], name=None, **kwargs):
         with open(path) as f:
             return cls(
                 {
@@ -215,6 +219,20 @@ class GeneSets:
                 path=path,
                 **kwargs
             )
+
+    @classmethod
+    def from_frame(cls, frame: DataFrame, name=None, **kwargs):
+        if not all(frame.dtypes == bool):
+            warn('Non-binary frame passed, coercing non-zero values to True')
+            frame = frame != 0
+        return cls(
+            {
+                GeneSet.from_series(row, warn_if_empty=False)
+                for _, row in frame.iterrows()
+            },
+            name=name,
+            **kwargs
+        )
 
     def trim(self, min_genes: int = 0, max_genes: int = float('Inf')) -> 'GeneSets':
         return GeneSets({
@@ -288,7 +306,7 @@ class GeneSets:
         assert format in {'wide', 'long'}
         if format == 'wide':
             assert not include_metadata
-            all_genes = self.all_genes
+            all_genes = list(self.all_genes)
             return DataFrame(
                 [
                     [
