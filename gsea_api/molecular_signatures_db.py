@@ -427,7 +427,7 @@ class MolecularSignaturesDatabase:
         else:
             raise ValueError(f'Unknown library: {path}!')
 
-    def load(self, gene_sets: str, species: str='Hs', id_type: str) -> GeneSets:
+    def load(self, gene_sets: str, id_type: str, species: str='Hs') -> GeneSets:
         path = self.resolve(gene_sets=gene_sets, species=species, id_type=id_type)
 
         gene_sets = GeneSets.from_gmt(path, name=gene_sets)
