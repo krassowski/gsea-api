@@ -411,18 +411,24 @@ class MolecularSignaturesDatabase:
             gene_set.metadata = metadata_by_name[gene_set.name]
 
     def parse_name(self, name):
-        parsed = re.match(rf'(?P<name>.*?)\.v{self.version}\.(?P<id_type>(entrez|symbols)).gmt', name)
+        if int(float(self.version)) >= 2022: # 'Hs' is included in gmt filename after 2022 version
+            parsed = re.match(rf'(?P<name>.*?)\.v{self.version}\.(?P<species>.*?)\.(?P<id_type>(entrez|symbols)).gmt', name)
+        else:
+            parsed= re.match(rf'(?P<name>.*?)\.v{self.version}\.(?P<id_type>(entrez|symbols)).gmt', name)
         return parsed.groupdict()
 
-    def resolve(self, gene_sets, id_type) -> Path:
-        path = self.path / f'{gene_sets}.v{self.version}.{id_type}.gmt'
+    def resolve(self, gene_sets, species, id_type) -> Path:
+        if int(float(self.version)) >= 2022: # 'Hs' is included in gmt filename after 2022 version
+            path = self.path / f'{gene_sets}.v{self.version}.{species}.{id_type}.gmt'
+        else:
+            path = self.path / f'{gene_sets}.v{self.version}.{id_type}.gmt'
         if path.exists():
             return path
         else:
             raise ValueError(f'Unknown library: {path}!')
 
-    def load(self, gene_sets: str, id_type: str) -> GeneSets:
-        path = self.resolve(gene_sets=gene_sets, id_type=id_type)
+    def load(self, gene_sets: str, id_type: str, species: str='Hs') -> GeneSets:
+        path = self.resolve(gene_sets=gene_sets, species=species, id_type=id_type)
 
         gene_sets = GeneSets.from_gmt(path, name=gene_sets)
     
